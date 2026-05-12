@@ -5,7 +5,7 @@ type Obstacle = {
   y: number;
   width: number;
   height: number;
-  type: number;
+  spriteArray: string[];
 };
 
 type Coin = {
@@ -252,39 +252,209 @@ const SPRITE_SETS: Record<string, { run1: string[], run2: string[], jump: string
       "                    "
     ],
     colorMap: { 'X': '#2c3e50', '1': '#8e44ad', 'W': '#3498db', 'B': '#ecf0f1' }
+  },
+  dino: {
+    run1: [
+      "                    ",
+      "             XXXX   ",
+      "            X1W11X  ",
+      "            X1B11X  ",
+      "            X1111X  ",
+      "            X1111X  ",
+      "        XXXXX1111X  ",
+      "       X11111111XX  ",
+      "  X    X111111111X  ",
+      "  XX   X111111111X  ",
+      "   XX XX111111111X  ",
+      "    XXX11111XXX11X  ",
+      "     XX11111X X11X  ",
+      "       XX  XX  XX   ",
+      "                    "
+    ],
+    run2: [
+      "                    ",
+      "             XXXX   ",
+      "            X1W11X  ",
+      "            X1B11X  ",
+      "            X1111X  ",
+      "            X1111X  ",
+      "        XXXXX1111X  ",
+      "       X11111111XX  ",
+      "  X    X111111111X  ",
+      "  XX   X111111111X  ",
+      "   X  XX111111111X  ",
+      "    XXX11111XXX11X  ",
+      "     XX11111X  XX   ",
+      "       XX       X   ",
+      "                    "
+    ],
+    jump: [
+      "                    ",
+      "             XXXX   ",
+      "            X1W11X  ",
+      "            X1B11X  ",
+      "            X1111X  ",
+      "            X1111X  ",
+      "        XXXXX1111X  ",
+      "       X11111111XX  ",
+      "   X   X111111111X  ",
+      "   XX  X111111111X  ",
+      "    XXXX111111111X  ",
+      "     XX11111XXX11X  ",
+      "       XX  X   XX   ",
+      "                    ",
+      "                    "
+    ],
+    colorMap: { 'X': '#1a261f', '1': '#e67e22', 'W': '#ffffff', 'B': '#000000' }
+  },
+  bird: {
+    run1: [
+      "                    ",
+      "                    ",
+      "                    ",
+      "          XXXXX     ",
+      "         X111W1X    ",
+      "        X1111B1X    ",
+      "  XXX   X111111XXXX ",
+      " X111X  X111111111X ",
+      "X1Y111XXX111111YYX  ",
+      " X1Y1111111111XXX   ",
+      "  XXXXXXXXX11X      ",
+      "         XX  X      ",
+      "        XYY  YY     ",
+      "                    ",
+      "                    "
+    ],
+    run2: [
+      "                    ",
+      "                    ",
+      "                    ",
+      "          XXXXX     ",
+      "         X111W1X    ",
+      "        X1111B1X    ",
+      "        X111111XXXX ",
+      "  XXX   X111111111X ",
+      " X111X XX111111YYX  ",
+      "X1Y111X1111111XXX   ",
+      " X1Y1XXXXXXXXX      ",
+      "  XXX     XYY       ",
+      "           YY       ",
+      "                    ",
+      "                    "
+    ],
+    jump: [
+      "                    ",
+      "                    ",
+      "          XXXXX     ",
+      "  XXX    X111W1X    ",
+      " X111X  X1111B1X    ",
+      "X1Y111XXX111111XXXX ",
+      " X1Y11111111111111X ",
+      "  XXXXX11111111YYX  ",
+      "      XXXXX111XXX   ",
+      "          XXXX      ",
+      "         XX         ",
+      "        XYY XYY     ",
+      "         YY  YY     ",
+      "                    ",
+      "                    "
+    ],
+    colorMap: { 'X': '#2c3e50', '1': '#3498db', 'W': '#ffffff', 'B': '#000000', 'Y': '#f1c40f' }
   }
 };
 
 const SPRITE_KEYS = Object.keys(SPRITE_SETS);
 
-const CACTUS_SPRITE_1 = [
-  "   X    ",
-  "  X1X   ",
-  "  X1X X ",
-  "X X1XX1X",
-  "X1X1X11X",
-  "XX11X1XX",
-  " XX1XX  ",
-  "  X1X   ",
-  "  X1X   ",
-  "  X1X   ",
-  " X111X  ",
-  " X111X  "
+const OBS_SHORT_1 = [
+  "   XX   ",
+  "  X11X  ",
+  "  X11X X",
+  "X X11XX1X",
+  "X1X11X11X",
+  "XX11111XX",
+  " XX111X ",
+  "  X11X  ",
+  "  X11X  ",
+  " X1111X "
 ];
 
-const CACTUS_SPRITE_2 = [
-  "    X   ",
-  "   X1X  ",
-  " X X1X  ",
-  "X1XX1X X",
-  "X11X1X1X",
-  "XX1X11XX",
-  "  XX1XX ",
-  "   X1X  ",
-  "   X1X  ",
-  "   X1X  ",
-  "  X111X ",
-  "  X111X "
+const OBS_SHORT_2 = [
+  "    XX  ",
+  "   X11X ",
+  " X X11X ",
+  "X1XX11X ",
+  "X11X11XX",
+  "XX11111X",
+  " XX11XX ",
+  "  X11X  ",
+  "  X11X  ",
+  " X1111X "
+];
+
+const OBS_TALL_1 = [
+  "   XX   ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X X",
+  "X X11XX1X",
+  "X1X11X11X",
+  "X1X11X11X",
+  "XX11111XX",
+  " XX111X ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  " X1111X ",
+  " X1111X ",
+  " X1111X "
+];
+
+const OBS_TALL_2 = [
+  "   XX   ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  " X X11X ",
+  "X1XX11X ",
+  "X11X11XX",
+  "XX11111X",
+  " XX11XX ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  "  X11X  ",
+  " X1111X ",
+  " X1111X ",
+  " X1111X "
 ];
 
 const COIN_FRAMES = [
@@ -492,14 +662,51 @@ const ChameleonGame: React.FC = () => {
     let coins: Coin[] = [];
     let colorItems: ColorItem[] = [];
 
+    let currentLevel = 0;
+    let levelTransitionFrames = 0;
+
+    const THEMES = [
+      { // 0: 草原
+        sky: ['#5D9CEC', '#E6FAFC'], bgObj: 'cloud',
+        mountain: '#A0C488',
+        ground: '#654321', groundTop: '#2ecc71', groundSpot: ['#4e3419', '#5c3a21'],
+        obsC: { 'X': '#1e3822', '1': '#2d8244' }, // Grass cactus
+        coinC: { 'X': '#d35400', '1': '#f1c40f' } // Gold
+      },
+      { // 1: 沙漠
+        sky: ['#FF7E5F', '#FEB47B'], bgObj: 'sun',
+        mountain: '#D38D5F',
+        ground: '#C28253', groundTop: '#E6A875', groundSpot: ['#A4653A', '#B57348'],
+        obsC: { 'X': '#5C4033', '1': '#8f9779' }, // Olive
+        coinC: { 'X': '#7f8c8d', '1': '#ecf0f1' } // Silver
+      },
+      { // 2: 霓虹之夜
+        sky: ['#141A30', '#2B2F4C'], bgObj: 'star',
+        mountain: '#1D2235',
+        ground: '#0B0D17', groundTop: '#FF2A6D', groundSpot: ['#1A1C29', '#21263A'],
+        obsC: { 'X': '#05D9E8', '1': '#01FFE1' }, // Neon Blue
+        coinC: { 'X': '#D1F2A5', '1': '#EFFCB9' } // Neon Green
+      },
+      { // 3: 冰雪仙境
+        sky: ['#83a4d4', '#b6fbff'], bgObj: 'snow',
+        mountain: '#FFFFFF',
+        ground: '#a0b0b9', groundTop: '#FFFFFF', groundSpot: ['#889ca6', '#728892'],
+        obsC: { 'X': '#2980B9', '1': '#6DD5FA' }, // Ice
+        coinC: { 'X': '#c0392b', '1': '#ff4d4d' } // Ruby
+      }
+    ];
+
     // --- 生成與繪製函數 ---
     const handleObstacles = () => {
+      const theme = THEMES[currentLevel];
       // 減少生成頻率
       if (frames >= nextObstacleFrame) {
+        const isTall = Math.random() > 0.4;
         const type = Math.random() > 0.5 ? 1 : 2;
-        const width = 8 * 3; // 24
-        const height = (Math.random() > 0.5 ? 10 : 12) * 3; // 30 of 36
-        obstacles.push({ x: canvas.width, y: 350 - height, width, height, type });
+        const spriteArray = isTall ? (type === 1 ? OBS_TALL_1 : OBS_TALL_2) : (type === 1 ? OBS_SHORT_1 : OBS_SHORT_2);
+        const height = spriteArray.length * 3;
+        const width = spriteArray[0].length * 3;
+        obstacles.push({ x: canvas.width, y: 350 - height, width, height, spriteArray });
         
         const currentSpawnRate = Math.max(50, 120 - Math.floor(score / 30));
         nextObstacleFrame = frames + currentSpawnRate + Math.floor(Math.random() * 40);
@@ -509,11 +716,7 @@ const ChameleonGame: React.FC = () => {
         const obs = obstacles[i];
         obs.x -= gameSpeed;
 
-        const colorMap = {
-          'X': '#1e3822',
-          '1': '#2d8244' // 綠色仙人掌
-        };
-        drawSprite(ctx, obs.type === 1 ? CACTUS_SPRITE_1 : CACTUS_SPRITE_2, obs.x, obs.y, 3, colorMap);
+        drawSprite(ctx, obs.spriteArray, obs.x, obs.y, 3, theme.obsC);
 
         // 碰撞偵測 (碰到障礙物) - 縮小一點 hitbox 比較友善
         const hitboxShrinkX = 15;
@@ -538,6 +741,8 @@ const ChameleonGame: React.FC = () => {
         nextCoinFrame = frames + 50 + Math.floor(Math.random() * 40);
       }
 
+      const theme = THEMES[currentLevel];
+
       for (let i = 0; i < coins.length; i++) {
         const coin = coins[i];
         coin.x -= gameSpeed;
@@ -545,18 +750,14 @@ const ChameleonGame: React.FC = () => {
         const isSpinFrame = Math.floor((frames + coin.frameOffset) / 8) % 4 === 0;
         const sprite = isSpinFrame ? COIN_FRAMES[1] : COIN_FRAMES[0];
         
-        const colorMap = {
-          'X': '#d35400',
-          '1': '#f1c40f'
-        };
-        drawSprite(ctx, sprite, coin.x - 12, coin.y - 12, 3, colorMap);
+        drawSprite(ctx, sprite, coin.x - 12, coin.y - 12, 3, theme.coinC);
 
         // 吃到金幣偵測
         const distX = Math.abs(coin.x - (player.x + player.width / 2));
         const distY = Math.abs(coin.y - (player.y + player.height / 2));
         if (distX < (player.width / 2 + coin.radius) && distY < (player.height / 2 + coin.radius)) {
           coinsCollected++;
-          createParticles(coin.x, coin.y, '#f1c40f', 8);
+          createParticles(coin.x, coin.y, theme.coinC['1'], 8);
           coins.splice(i, 1);
           i--;
         }
@@ -627,26 +828,59 @@ const ChameleonGame: React.FC = () => {
     };
 
     const drawEnvironment = () => {
+      const theme = THEMES[currentLevel];
+
       // 漸層天空
       const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      grad.addColorStop(0, '#5D9CEC');
-      grad.addColorStop(1, '#E6FAFC');
+      grad.addColorStop(0, theme.sky[0]);
+      grad.addColorStop(1, theme.sky[1]);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 雲朵
-      clouds.forEach(cloud => {
-        cloud.x -= cloud.speed + (gameSpeed * 0.1);
-        if (cloud.x < -100) cloud.x = canvas.width + Math.random() * 100;
-        
-        drawSprite(ctx, CLOUD_SPRITE, cloud.x, cloud.y, 4, {
-          'X': 'rgba(255, 255, 255, 0.4)',
-          '1': 'rgba(255, 255, 255, 0.8)'
+      // 背景裝飾
+      if (theme.bgObj === 'star') {
+        for (let i = 0; i < 30; i++) {
+          const starX = (i * 70 - frames * 0.2) % canvas.width;
+          const sx = starX < 0 ? canvas.width + starX : starX;
+          const starY = (i * 87) % 250;
+          ctx.fillStyle = (frames + i * 10) % 60 < 30 ? 'white' : 'rgba(255,255,255,0.2)';
+          ctx.fillRect(sx, starY, 3, 3);
+        }
+      } else if (theme.bgObj === 'snow') {
+        for (let i = 0; i < 40; i++) {
+          const snowX = (i * 40 - frames * 1.5) % canvas.width;
+          const sx = snowX < 0 ? canvas.width + snowX : snowX;
+          const snowY = (i * 50 + frames * 2) % 350;
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.beginPath();
+          ctx.arc(sx, snowY, 2.5 + Math.sin(frames * 0.05 + i), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        clouds.forEach((obj, idx) => {
+          obj.x -= obj.speed + (gameSpeed * 0.1);
+          if (obj.x < -100) obj.x = canvas.width + Math.random() * 100;
+          
+          if (theme.bgObj === 'cloud') {
+            drawSprite(ctx, CLOUD_SPRITE, obj.x, obj.y, 4, {
+              'X': 'rgba(255, 255, 255, 0.4)',
+              '1': 'rgba(255, 255, 255, 0.8)'
+            });
+          } else if (theme.bgObj === 'sun' && idx === 0) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(obj.x + 50, 100, 60, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(obj.x + 50, 100, 45, 0, Math.PI * 2);
+            ctx.fill();
+          }
         });
-      });
+      }
 
       // 遠景山脈 (簡單色塊多邊形)
-      ctx.fillStyle = '#A0C488';
+      ctx.fillStyle = theme.mountain;
       ctx.beginPath();
       ctx.moveTo(0, 350);
       for(let i=0; i<canvas.width + 100; i+=100) {
@@ -656,17 +890,18 @@ const ChameleonGame: React.FC = () => {
       ctx.fill();
 
       // 地板主體
-      ctx.fillStyle = '#654321'; // 深褐色土地
+      ctx.fillStyle = theme.ground;
       ctx.fillRect(0, 350, canvas.width, 50);
 
       // 地板草皮
-      ctx.fillStyle = '#2ecc71';
+      ctx.fillStyle = theme.groundTop;
       ctx.fillRect(0, 350, canvas.width, 10);
       
       // 地板斑點(速度感)
-      ctx.fillStyle = '#4e3419';
       for (let i = 0; i < canvas.width + 40; i += 40) {
+        ctx.fillStyle = theme.groundSpot[0];
         ctx.fillRect(i - ((frames * gameSpeed) % 40), 365, 8, 8);
+        ctx.fillStyle = theme.groundSpot[1];
         ctx.fillRect(i + 20 - ((frames * gameSpeed) % 40), 380, 12, 6);
       }
     };
@@ -710,9 +945,25 @@ const ChameleonGame: React.FC = () => {
 
       frames++;
       
-      // 難度隨分數增加
+      // 難度與場景隨分數增加
       gameSpeed = Math.min(16, 5 + score / 400); 
       distance += gameSpeed;
+
+      const newLevel = Math.min(Math.floor(score / 1000), THEMES.length - 1);
+      if (newLevel !== currentLevel) {
+        currentLevel = newLevel;
+        levelTransitionFrames = 120; // 顯示兩秒升級提示
+      }
+
+      if (levelTransitionFrames > 0) {
+         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, levelTransitionFrames / 30)})`;
+         ctx.font = "bold 40px monospace";
+         ctx.textAlign = "center";
+         const levelNames = ["草原", "沙漠", "霓虹之夜", "冰雪仙境"];
+         ctx.fillText(`STAGE ${currentLevel + 1}: ${levelNames[currentLevel]}`, canvas.width / 2, canvas.height / 3);
+         ctx.textAlign = "left";
+         levelTransitionFrames--;
+      }
 
       if (!gameOverFlag) {
         animationId = requestAnimationFrame(gameLoop);
