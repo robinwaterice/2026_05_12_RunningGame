@@ -37,329 +37,383 @@ type Particle = {
 
 // --- PIXEL ART SPRITES ---
 const SPRITE_SETS: Record<string, { run1: string[], run2: string[], jump: string[], colorMap: Record<string, string> }> = {
-  chameleon: {
+  trex: {
     run1: [
-      "             XXXX   ",
-      "            XH111X  ",
-      "           XHH1W11X ",
-      "           XH1WBB1X ",
-      "           XX1111D1X",
-      "       XXXXXX111DD1X",
-      "     XXH111111DDD11X",
-      "    XH11111111DD111X",
-      "   X111XXXXXXXXXDDXX",
-      "  X11DX       XDDX  ",
-      "  X1D1X      XXDDX  ",
-      "  X11DX      X1D1X  ",
-      "   XX        XXXX   ",
-      "            XX  XX  ",
-      "            XX  XX  "
+      "                    ",
+      "           XXXXXXX  ",
+      "          X1111111X ",
+      "         X111W11111X",
+      "         X111B11111X",
+      "         X11111XXXXX",
+      "         X11111X    ",
+      "  XX     X11111XXXX ",
+      " X11XX  XX11111111X ",
+      " X111XXXX11112221X  ",
+      " X111111111122221X  ",
+      "  X111111111111XX   ",
+      "   XXXXXXXXXXXX     ",
+      "        X1X X1X     ",
+      "        XXX XXX     "
     ],
     run2: [
-      "             XXXX   ",
-      "            XH111X  ",
-      "           XHH1W11X ",
-      "           XH1WBB1X ",
-      "           XX1111D1X",
-      "       XXXXXX111DD1X",
-      "     XXH111111DDD11X",
-      "    XH11111111DD111X",
-      "   X111XXXXXXXXXDDXX",
-      "  X111X       XDDX  ",
-      "  X11DX      XXDDX  ",
-      "   XXX       X11DX  ",
-      "   X X        XXX   ",
-      "  XX XX        X X  ",
-      "  XX XX       XX XX "
+      "                    ",
+      "           XXXXXXX  ",
+      "          X1111111X ",
+      "         X111W11111X",
+      "         X111B11111X",
+      "         X11111XXXXX",
+      "         X11111X    ",
+      "  XX     X11111XXXX ",
+      " X11XX  XX11111111X ",
+      " X111XXXX11112221X  ",
+      " X111111111122221X  ",
+      "  X111111111111XX   ",
+      "   XXXXXXXXXXXX     ",
+      "            X1X     ",
+      "           XXX      "
     ],
     jump: [
-      "             XXXX   ",
-      "            XH111X  ",
-      "           XHH1W11X ",
-      "           XH1WBB1X ",
-      "           XX1111D1X",
-      "       XXXXXX111DD1X",
-      "     XXH111111DDD11X",
-      "    XH11111111DD111X",
-      "   X111XX  XXXX DDXX",
-      "  X11DX  XX    XXX  ",
-      "  X1D1X             ",
-      "   XXX              ",
       "                    ",
-      "                    ",
+      "           XXXXXXX  ",
+      "          X1111111X ",
+      "         X111W11111X",
+      "         X111B11111X",
+      "         X11111XXXXX",
+      "         X11111X    ",
+      "  XX     X11111XXXX ",
+      " X11XX  XX11111111X ",
+      " X111XXXX11112221X  ",
+      " X111111111122221X  ",
+      "  X111111111111XX   ",
+      "   XXXXXXX  XXX     ",
+      "       XXX          ",
       "                    "
     ],
-    colorMap: { 'X': '#1a261f', '1': '#2ecc71', 'D': 'rgba(0,0,0,0.25)', 'H': 'rgba(255,255,255,0.3)', 'W': '#ffffff', 'B': '#000000' }
+    colorMap: { 'X': '#145A32', '1': '#2ECC71', '2': '#58D68D', 'W': '#FFFFFF', 'B': '#000000' }
   },
-  robot: {
+  knight: {
     run1: [
-      "       XXXXX        ",
-      "      XDD11WX       ",
-      "      XDDBB1X       ",
-      "     XXX111XXX      ",
-      "     X X111X X      ",
-      "     X X111X X      ",
-      "    XX X111X XX     ",
-      "       X111X        ",
-      "      XX111XX       ",
-      "      X     X       ",
-      "      X     X       ",
-      "     XX     XX      ",
-      "                    ",
-      "                    ",
+      "        XX          ",
+      "      XXPPXX        ",
+      "     XPPPPPPX       ",
+      "    XX111111XX      ",
+      "   X1111111111X     ",
+      "   X111BBWWBB1X     ",
+      "   X111BBWWBB1X     ",
+      "    XX111111XX      ",
+      "   XXX222222XXX     ",
+      " X X11X2222X11X X   ",
+      "X1XX11X2222X11XX1X  ",
+      "X1X XX111111XX X1X  ",
+      "XXX   X11X11X  XXX  ",
+      "      XXX XXX       ",
       "                    "
     ],
     run2: [
-      "       XXXXX        ",
-      "      XDD11WX       ",
-      "      XDDBB1X       ",
-      "     XXX111XXX      ",
-      "    XX X111X XX     ",
-      "    X  X111X  X     ",
-      "    X  X111X  X     ",
-      "       X111X        ",
-      "      XX111XX       ",
-      "       X   X        ",
-      "       X   X        ",
-      "      XX   XX       ",
-      "                    ",
-      "                    ",
+      "        XX          ",
+      "      XXPPXX        ",
+      "     XPPPPPPX       ",
+      "    XX111111XX      ",
+      "   X1111111111X     ",
+      "   X111BBWWBB1X     ",
+      "   X111BBWWBB1X     ",
+      "    XX111111XX      ",
+      "   XXX222222XXX     ",
+      " X X11X2222X11X X   ",
+      "X1XX11X2222X11XX1X  ",
+      "X1X XX111111XX X1X  ",
+      "XXX    X11XX   XXX  ",
+      "       XXXX         ",
       "                    "
     ],
     jump: [
-      "       XXXXX        ",
-      "      XDD11WX       ",
-      "      XDDBB1X       ",
-      "     XXX111XXX      ",
-      "      X X111X X     ",
-      "        X111X       ",
-      "       XX111XX      ",
-      "      XX     XX     ",
-      "      X       X     ",
-      "      X       X     ",
-      "      XX     XX     ",
-      "        H   H       ",
-      "       H     H      ",
+      "        XX          ",
+      "      XXPPXX        ",
+      "     XPPPPPPX       ",
+      "    XX111111XX      ",
+      "   X1111111111X     ",
+      "   X111BBWWBB1X     ",
+      "   X111BBWWBB1X     ",
+      "    XX111111XX      ",
+      " X XXX222222XXX X   ",
+      "X1XX11X2222X11XX1X  ",
+      "X1X XX111111XX X1X  ",
+      "XXX   X11X11X  XXX  ",
+      "      XXX XXX       ",
       "                    ",
       "                    "
     ],
-    colorMap: { 'X': '#2c3e50', '1': '#95a5a6', 'D': '#7f8c8d', 'W': '#ecf0f1', 'B': '#e74c3c', 'H': '#f1c40f' }
-  },
-  dog: {
-    run1: [
-      "                    ",
-      "                    ",
-      "                    ",
-      "      XXXX          ",
-      "     X1WW1X         ",
-      "     X1B11X         ",
-      "   XXX1111XXXX      ",
-      "  X11111111111X     ",
-      "  X11111111111X   X ",
-      "  X111XXXXXXX1X  X  ",
-      "  X111X     X1XX    ",
-      "   XXX       XXX    ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    run2: [
-      "                    ",
-      "                    ",
-      "                    ",
-      "      XXXX          ",
-      "     X1WW1X         ",
-      "     X1B11X         ",
-      "   XXX1111XXXX      ",
-      "  X11111111111X     ",
-      "  X11111111111XX    ",
-      "  X111XXXXXXX11X    ",
-      "  X  11X     X11X   ",
-      "   XXX        XX    ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    jump: [
-      "                    ",
-      "                    ",
-      "      XXXX          ",
-      "     X1WW1X         ",
-      "     X1B11X         ",
-      "   XXX1111XXXX      ",
-      "  X11111111111X     ",
-      "  X11111111111X   X ",
-      "   X11XXXXXXX1X  X  ",
-      "   X11X      X1X    ",
-      "    XX        XX    ",
-      "                    ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    colorMap: { 'X': '#3e2723', '1': '#d7ccc8', 'W': '#ffffff', 'B': '#000000' }
-  },
-  ufo: {
-    run1: [
-      "                    ",
-      "       XXXXXX       ",
-      "     XXWWWWWWXX     ",
-      "    XWWWWWWWWWWX    ",
-      "   XWBBBBBBBBBBWX   ",
-      "  XX111111111111XX  ",
-      " X11X11X11X11X11X1X ",
-      " X1111111111111111X ",
-      "  XXXXXXXXXXXXXXXX  ",
-      "      W      W      ",
-      "       W    W       ",
-      "                    ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    run2: [
-      "                    ",
-      "       XXXXXX       ",
-      "     XXWWWWWWXX     ",
-      "    XWWWWWWWWWWX    ",
-      "   XWBBBBBBBBBBWX   ",
-      "  XX111111111111XX  ",
-      " X111XX11XX11XX111X ",
-      " X1111111111111111X ",
-      "  XXXXXXXXXXXXXXXX  ",
-      "     W        W     ",
-      "      W      W      ",
-      "                    ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    jump: [
-      "       XXXXXX       ",
-      "     XXWWWWWWXX     ",
-      "    XWWWWWWWWWWX    ",
-      "   XWBBBBBBBBBBWX   ",
-      "  XX111111111111XX  ",
-      " X11X11X11X11X11X1X ",
-      " X1111111111111111X ",
-      "  XXXXXXXXXXXXXXXX  ",
-      "    W          W    ",
-      "     W        W     ",
-      "      W      W      ",
-      "       W    W       ",
-      "                    ",
-      "                    ",
-      "                    "
-    ],
-    colorMap: { 'X': '#2c3e50', '1': '#8e44ad', 'W': '#3498db', 'B': '#ecf0f1' }
-  },
-  dino: {
-    run1: [
-      "                    ",
-      "             XXXX   ",
-      "            X1W11X  ",
-      "            X1B11X  ",
-      "            X1111X  ",
-      "            X1111X  ",
-      "        XXXXX1111X  ",
-      "       X11111111XX  ",
-      "  X    X111111111X  ",
-      "  XX   X111111111X  ",
-      "   XX XX111111111X  ",
-      "    XXX11111XXX11X  ",
-      "     XX11111X X11X  ",
-      "       XX  XX  XX   ",
-      "                    "
-    ],
-    run2: [
-      "                    ",
-      "             XXXX   ",
-      "            X1W11X  ",
-      "            X1B11X  ",
-      "            X1111X  ",
-      "            X1111X  ",
-      "        XXXXX1111X  ",
-      "       X11111111XX  ",
-      "  X    X111111111X  ",
-      "  XX   X111111111X  ",
-      "   X  XX111111111X  ",
-      "    XXX11111XXX11X  ",
-      "     XX11111X  XX   ",
-      "       XX       X   ",
-      "                    "
-    ],
-    jump: [
-      "                    ",
-      "             XXXX   ",
-      "            X1W11X  ",
-      "            X1B11X  ",
-      "            X1111X  ",
-      "            X1111X  ",
-      "        XXXXX1111X  ",
-      "       X11111111XX  ",
-      "   X   X111111111X  ",
-      "   XX  X111111111X  ",
-      "    XXXX111111111X  ",
-      "     XX11111XXX11X  ",
-      "       XX  X   XX   ",
-      "                    ",
-      "                    "
-    ],
-    colorMap: { 'X': '#1a261f', '1': '#e67e22', 'W': '#ffffff', 'B': '#000000' }
+    colorMap: { 'X': '#2C3E50', '1': '#BDC3C7', '2': '#7F8C8D', 'P': '#E74C3C', 'W': '#F1C40F', 'B': '#000000' }
   },
   bird: {
     run1: [
       "                    ",
-      "                    ",
-      "                    ",
-      "          XXXXX     ",
-      "         X111W1X    ",
-      "        X1111B1X    ",
-      "  XXX   X111111XXXX ",
-      " X111X  X111111111X ",
-      "X1Y111XXX111111YYX  ",
-      " X1Y1111111111XXX   ",
-      "  XXXXXXXXX11X      ",
-      "         XX  X      ",
-      "        XYY  YY     ",
-      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111X      ",
+      "   X111111W111X     ",
+      "   X111111B111X     ",
+      "   X11111111111XXXX ",
+      "  X11X11111111YYYYYX",
+      " X11XX111111111YYYYX",
+      " X11X111112211XXXXX ",
+      "  X1111112221XX     ",
+      "   XXXXX11221X      ",
+      "      XXXXXXX       ",
+      "       XYX XYX      ",
+      "       YXY YXY      ",
       "                    "
     ],
     run2: [
       "                    ",
-      "                    ",
-      "                    ",
-      "          XXXXX     ",
-      "         X111W1X    ",
-      "        X1111B1X    ",
-      "        X111111XXXX ",
-      "  XXX   X111111111X ",
-      " X111X XX111111YYX  ",
-      "X1Y111X1111111XXX   ",
-      " X1Y1XXXXXXXXX      ",
-      "  XXX     XYY       ",
-      "           YY       ",
-      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111X      ",
+      "   X111111W111X     ",
+      "   X111111B111X     ",
+      "   X11111111111XXXX ",
+      "   XX 11111111YYYYYX",
+      " X11XX111111111YYYYX",
+      " X11X111112211XXXXX ",
+      "  X 111112221XX     ",
+      "    XXXX11221X      ",
+      "      XXXXXXX       ",
+      "        XYX         ",
+      "        YXY         ",
       "                    "
     ],
     jump: [
       "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111X      ",
+      "   X111111W111X     ",
+      "   X111111B111X     ",
+      " XXX11111111111XXXX ",
+      "X111XX11111111YYYYYX",
+      "X11111X11111111YYYYX",
+      " X1111X1112211XXXXX ",
+      "  XXXX1112221XX     ",
+      "      X11221X       ",
+      "      XXXXXXX       ",
+      "       XYX XYX      ",
+      "       YXY YXY      ",
+      "                    "
+    ],
+    colorMap: { 'X': '#1A5276', '1': '#3498DB', '2': '#85C1E9', 'Y': '#F1C40F', 'W': '#FFFFFF', 'B': '#000000' }
+  },
+  robot: {
+    run1: [
+      "        XXX         ",
+      "        X2X         ",
+      "       XX2XX        ",
+      "     XXX111XXX      ",
+      "    X111111111X     ",
+      "    X111111111X     ",
+      "    X1B11111B1X     ",
+      "    X1G11111G1X     ",
+      "    X111111111X     ",
+      "   XX1X22222X1XX    ",
+      " X X11X11111X11X X  ",
+      "X1XX11X11111X11XX1X ",
+      "XXX   XXXXXXX   XXX ",
+      "      X2X X2X       ",
+      "      XXX XXX       "
+    ],
+    run2: [
+      "        XXX         ",
+      "        X2X         ",
+      "       XX2XX        ",
+      "     XXX111XXX      ",
+      "    X111111111X     ",
+      "    X111111111X     ",
+      "    X1B11111B1X     ",
+      "    X1G11111G1X     ",
+      "    X111111111X     ",
+      "   XX1X22222X1XX    ",
+      " X X11X11111X11X X  ",
+      "X1XX11X11111X11XX1X ",
+      "XXX   XXXXXXX   XXX ",
+      "        X2X         ",
+      "        XXX         "
+    ],
+    jump: [
+      "        XXX         ",
+      "        X2X         ",
+      "       XX2XX        ",
+      "     XXX111XXX      ",
+      "    X111111111X     ",
+      "    X111111111X     ",
+      "    X1B11111B1X     ",
+      "    X1G11111G1X     ",
+      "    X111111111X     ",
+      " X XX1X22222X1XX X  ",
+      "X1XX11X11111X11XX1X ",
+      "XXX   XXXXXXX   XXX ",
+      "      X2X X2X       ",
+      "      XXX XXX       ",
+      "                    "
+    ],
+    colorMap: { 'X': '#17202A', '1': '#95A5A6', '2': '#F39C12', 'G': '#00FFFF', 'B': '#000000' }
+  },
+  ninja: {
+    run1: [
       "                    ",
-      "          XXXXX     ",
-      "  XXX    X111W1X    ",
-      " X111X  X1111B1X    ",
-      "X1Y111XXX111111XXXX ",
-      " X1Y11111111111111X ",
-      "  XXXXX11111111YYX  ",
-      "      XXXXX111XXX   ",
-      "          XXXX      ",
-      "         XX         ",
-      "        XYY XYY     ",
-      "         YY  YY     ",
+      "      XXXXXXX       ",
+      "     X1111111X      ",
+      "     XRRRRRRRX      ",
+      "     X22B2B22X      ",
+      "     X2222222X      ",
+      "     X1111111X      ",
+      "  XXX X11111X XXX   ",
+      "  X1XXX11111XXX1X   ",
+      "  X11X11R1R11X11X   ",
+      "  XXX X11111X XXX   ",
+      "      X11111X       ",
+      "      XXXXXXX       ",
+      "      X1X X1X       ",
+      "      XXX XXX       "
+    ],
+    run2: [
+      "                    ",
+      "      XXXXXXX       ",
+      "     X1111111X      ",
+      "     XRRRRRRRX      ",
+      "     X22B2B22X      ",
+      "     X2222222X      ",
+      "     X1111111X      ",
+      "  XXX X11111X XXX   ",
+      "  X1XXX11111XXX1X   ",
+      "  X11X11R1R11X11X   ",
+      "  XXX X11111X XXX   ",
+      "      X11111X       ",
+      "      XXXXXXX       ",
+      "       X1X          ",
+      "       XXX          "
+    ],
+    jump: [
+      "      XXXXXXX       ",
+      "     X1111111X      ",
+      "     XRRRRRRRX      ",
+      "     X22B2B22X      ",
+      "     X2222222X      ",
+      "     X1111111X      ",
+      "  XXX X11111X XXX   ",
+      "  X1XXX11111XXX1X   ",
+      "  X11X11R1R11X11X   ",
+      "  XXX X11111X XXX   ",
+      "      X11111X       ",
+      "      XXXXXXX       ",
+      "     XX1X X1XX      ",
+      "    XXX     XXX     ",
+      "                    "
+    ],
+    colorMap: { 'X': '#000000', '1': '#2C3E50', '2': '#F5CBA7', 'R': '#E74C3C', 'B': '#000000' }
+  },
+  alien: {
+    run1: [
+      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11WWW111WWW11X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X11WWW111WWW11X   ",
+      "   X11111111111X    ",
+      "    X222111222X     ",
+      "    XX2222222XX     ",
+      "      X11111X       ",
+      "     XX1X X1XX      ",
+      "    XX X   X XX     ",
+      "                    "
+    ],
+    run2: [
+      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11WWW111WWW11X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X11WWW111WWW11X   ",
+      "   X11111111111X    ",
+      "    X222111222X     ",
+      "    XX2222222XX     ",
+      "      X11111X       ",
+      "      XX1X1XX       ",
+      "       X   X        ",
+      "                    "
+    ],
+    jump: [
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11WWW111WWW11X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X1WBBBW1WBBBW1X   ",
+      "  X11WWW111WWW11X   ",
+      "   X11111111111X    ",
+      "    X222111222X     ",
+      "    XX2222222XX     ",
+      "      X11111X       ",
+      "     XX1X X1XX      ",
+      "    XX X   X XX     ",
       "                    ",
       "                    "
     ],
-    colorMap: { 'X': '#2c3e50', '1': '#3498db', 'W': '#ffffff', 'B': '#000000', 'Y': '#f1c40f' }
+    colorMap: { 'X': '#000000', '1': '#9b59b6', '2': '#8e44ad', 'W': '#ecf0f1', 'B': '#000000' }
+  },
+  ghost: {
+    run1: [
+      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11W111111W111X   ",
+      "  X11B111111B111X   ",
+      "  X11111WW111111X   ",
+      "  X1111WBBW11111X   ",
+      "  X11111WW111111X   ",
+      "   X11111111111X    ",
+      "   X11111111111X    ",
+      "  XXXX11X111XXXX    ",
+      "  X11X X1X X111X    ",
+      "  X X   X   X XX    ",
+      "                    "
+    ],
+    run2: [
+      "                    ",
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11W111111W111X   ",
+      "  X11B111111B111X   ",
+      "  X11111WW111111X   ",
+      "  X1111WBBW11111X   ",
+      "  X11111WW111111X   ",
+      "   X11111111111X    ",
+      "   X11111111111X    ",
+      "   XXXX11X11XXXX    ",
+      "   X11X X1X X11X    ",
+      "    XX   X   XX     ",
+      "                    "
+    ],
+    jump: [
+      "      XXXXXXX       ",
+      "    XX1111111XX     ",
+      "   X11111111111X    ",
+      "  X11W111111W111X   ",
+      "  X11B111111B111X   ",
+      "  X11111WW111111X   ",
+      "  X1111WBBW11111X   ",
+      "  X11111WW111111X   ",
+      "   X11111111111X    ",
+      "   X11111111111X    ",
+      "  XXXX11X111XXXX    ",
+      "  X11X X1X X111X    ",
+      "  X X   X   X XX    ",
+      "                    ",
+      "                    "
+    ],
+    colorMap: { 'X': '#2C3E50', '1': '#ECF0F1', 'W': '#FFFFFF', 'B': '#000000' }
   }
 };
 
@@ -1033,38 +1087,41 @@ const ChameleonGame: React.FC = () => {
   }, [isGameOver]);
 
   return (
-    <div className="flex flex-col items-center justify-center font-mono w-full px-4">
-      <div className="mb-6 text-center">
-        <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-sky-500 tracking-tighter drop-shadow-sm mb-2">
+    <div className="flex flex-col items-center justify-center font-mono w-full px-2 sm:px-4">
+      <div className="mb-4 sm:mb-6 text-center mt-4 sm:mt-0">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-sky-500 tracking-tighter drop-shadow-sm mb-1 sm:mb-2">
           PIXEL CHAMELEON
         </h2>
-        <p className="text-neutral-500 font-medium">按 空白鍵 或 點擊畫面 跳躍</p>
+        <p className="text-neutral-500 font-medium text-xs sm:text-sm md:text-base">按 空白鍵 或 點擊畫面 跳躍</p>
+        <div className="text-rose-400 font-bold text-xs mt-1 block sm:hidden animate-pulse">
+          建議將手機橫放體驗更佳
+        </div>
       </div>
       
-      <div className="relative group max-w-full">
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+      <div className="relative group w-full max-w-[800px]">
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 pointer-events-none"></div>
         <canvas 
           ref={canvasRef} 
           width={800} 
           height={400} 
-          className="relative max-w-full w-full h-auto bg-white shadow-2xl rounded-xl ring-1 ring-black/5 [image-rendering:pixelated] cursor-pointer"
+          className="relative max-w-full w-full h-auto bg-white shadow-2xl rounded-xl ring-1 ring-black/5 [image-rendering:pixelated] cursor-pointer touch-none"
           style={{ aspectRatio: '2 / 1' }}
         />
         
         {isGameOver && (
           <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm flex flex-col justify-center items-center text-white rounded-xl z-20 animate-in fade-in duration-300">
-            <h1 className="text-5xl font-black text-rose-500 tracking-widest mb-2 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-rose-500 tracking-widest mb-2 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
               GAME OVER
             </h1>
-            <div className="bg-white/10 px-6 py-3 rounded-lg border border-white/20 mb-8 backdrop-blur-md">
-              <h3 className="text-2xl font-bold text-center">最終分數: <span className="text-yellow-400">{finalScore}</span></h3>
+            <div className="bg-white/10 px-4 sm:px-6 py-2 sm:py-3 rounded-lg border border-white/20 mb-6 sm:mb-8 backdrop-blur-md">
+              <h3 className="text-xl sm:text-2xl font-bold text-center">最終分數: <span className="text-yellow-400">{finalScore}</span></h3>
               {finalScore >= highScore && finalScore > 0 && (
-                 <p className="text-emerald-400 font-bold text-center mt-2 animate-pulse">NEW HIGH SCORE!</p>
+                 <p className="text-emerald-400 font-bold text-center mt-1 sm:mt-2 animate-pulse text-sm sm:text-base">NEW HIGH SCORE!</p>
               )}
             </div>
             <button 
               onClick={handleRestart}
-              className="px-8 py-3 text-lg font-bold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white rounded-full shadow-[0_4px_0_rgb(4,120,87)] active:shadow-none active:translate-y-[4px] transition-all"
+              className="px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg font-bold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white rounded-full shadow-[0_4px_0_rgb(4,120,87)] active:shadow-none active:translate-y-[4px] transition-all"
             >
               再玩一次
             </button>
@@ -1072,23 +1129,23 @@ const ChameleonGame: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-8 flex gap-6 text-neutral-600 bg-white px-6 py-4 rounded-xl shadow-sm border border-neutral-100 font-medium text-sm w-full max-w-3xl justify-center flex-wrap">
-        <span className="flex items-center gap-2 text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded">
+      <div className="mt-4 sm:mt-8 flex gap-3 sm:gap-6 text-neutral-600 bg-white px-3 py-3 sm:px-6 sm:py-4 rounded-xl shadow-sm border border-neutral-100 font-medium text-xs sm:text-sm w-full max-w-[800px] justify-center flex-wrap">
+        <span className="flex items-center gap-1 sm:gap-2 text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded">
           長按跳得更高
         </span>
-        <span className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-yellow-400 rounded-full shadow-inner block"></div> 
+        <span className="flex items-center gap-1 sm:gap-2">
+          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full shadow-inner block"></div> 
           收集金幣
         </span>
-        <span className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-sky-400 rounded-[4px] block border-2 border-black/80"></div> 
+        <span className="flex items-center gap-1 sm:gap-2">
+          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-sky-400 rounded-[4px] block border-2 border-black/80"></div> 
           吃方塊變身
         </span>
-        <span className="flex items-center gap-2">
-          <div className="w-4 h-6 bg-emerald-700 rounded-sm block border border-black/50 overflow-hidden">
+        <span className="flex items-center gap-1 sm:gap-2">
+          <div className="w-3 h-4 sm:w-4 sm:h-6 bg-emerald-700 rounded-sm block border border-black/50 overflow-hidden">
             <div className="w-full h-1/2 bg-emerald-600 mt-1"></div>
           </div> 
-          避開仙人掌
+          避開障礙物
         </span>
       </div>
     </div>
