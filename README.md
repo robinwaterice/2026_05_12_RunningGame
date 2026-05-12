@@ -2,19 +2,38 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# 16-bit Chameleon Runner 變色龍跑酷
 
-This contains everything you need to run your app locally.
+A retro 16-bit style endless runner game built with React and HTML5 Canvas. Inspired by the classic Chrome Dinosaur game, this game features dynamic environments, multiple unlockable characters, and engaging pixel art graphics!
 
-View your app in AI Studio: https://ai.studio/apps/54883b27-44f3-4c2b-905b-44c0ee799023
+## 🎮 Features
 
-## Run Locally
+- **Classic Endless Runner Gameplay:** Jump over obstacles and survive as long as you can.
+- **Multiple Characters:** Play as a T-Rex, Knight, Bird, Robot, Ninja, Alien, or Ghost.
+- **Dynamic Themes:** The game transitions smoothly through different levels including Grassland, Desert, Neon Night, and Ice Wonderland.
+- **Collectibles:** Gather coins to boost your score.
+- **High Score Tracking:** Your best score is saved locally in your browser.
+- **Particle Effects:** Enjoy satisfying jump and collision visual effects.
 
-**Prerequisites:**  Node.js
+## 🛠️ Technologies Used
 
+- React 19 (via Vite)
+- HTML5 Canvas API for 2D rendering
+- Tailwind CSS for layout styling
+- TypeScript
+
+## 🕹️ How to Play
+
+Press the **Spacebar** or click/tap the screen to jump. Hold the jump button for a slightly higher jump to avoid taller obstacles.
+
+## 🚀 Getting Started Locally
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open `http://localhost:3000` in your browser to play the game!

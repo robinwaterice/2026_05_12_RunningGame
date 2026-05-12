@@ -981,8 +981,21 @@ const ChameleonGame: React.FC = () => {
       ctx.fillText(`HI: ${displayHighScore}`, canvas.width - 150, 30);
     };
 
+    let lastTimestamp = 0;
+    const fpsInterval = 1000 / 60;
+
     // --- 遊戲主迴圈 ---
-    const gameLoop = () => {
+    const gameLoop = (timestamp: number) => {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const deltaTime = timestamp - lastTimestamp;
+
+      if (!gameOverFlag) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+
+      if (deltaTime < fpsInterval) return;
+      lastTimestamp = timestamp - (deltaTime % fpsInterval);
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (isSpaceDown) {
@@ -1000,7 +1013,7 @@ const ChameleonGame: React.FC = () => {
       frames++;
       
       // 難度與場景隨分數增加
-      gameSpeed = Math.min(16, 5 + score / 400); 
+      gameSpeed = Math.min(14, 4 + score / 800); 
       distance += gameSpeed;
 
       const newLevel = Math.min(Math.floor(score / 1000), THEMES.length - 1);
@@ -1019,9 +1032,7 @@ const ChameleonGame: React.FC = () => {
          levelTransitionFrames--;
       }
 
-      if (!gameOverFlag) {
-        animationId = requestAnimationFrame(gameLoop);
-      } else {
+      if (gameOverFlag) {
         if (score > highScoreRef.current) {
           highScoreRef.current = score;
           setHighScore(score);
@@ -1072,7 +1083,7 @@ const ChameleonGame: React.FC = () => {
     canvas.addEventListener('touchend', handlePointerUp as EventListener);
 
     // 啟動遊戲
-    gameLoop();
+    animationId = requestAnimationFrame(gameLoop);
 
     // --- 清除 Effect ---
     return () => {
