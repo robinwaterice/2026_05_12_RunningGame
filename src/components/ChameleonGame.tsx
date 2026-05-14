@@ -651,12 +651,42 @@ const drawSprite = (
 };
 
 export const ACHIEVEMENTS_DATA = [
+  // 基礎/特殊 (1)
   { id: 'first_play', name: '初次出擊', desc: '開始第一場跑酷', icon: '🏁' },
+  // 分數系列 (9)
+  { id: 'score_100', name: '暖身運動', desc: '單次分數超過 100 分', icon: '🏃' },
   { id: 'score_500', name: '跑酷初學者', desc: '單次分數超過 500 分', icon: '🥉' },
   { id: 'score_1000', name: '跑酷老手', desc: '單次分數超過 1000 分', icon: '🥈' },
   { id: 'score_2000', name: '跑酷大師', desc: '單次分數超過 2000 分', icon: '🥇' },
-  { id: 'coin_10', name: '金幣獵人', desc: '單次收集 10 個金幣', icon: '💰' },
-  { id: 'transform', name: '百變怪', desc: '吃到 1 次變身道具', icon: '✨' },
+  { id: 'score_3000', name: '漸入佳境', desc: '單次分數超過 3000 分', icon: '🔥' },
+  { id: 'score_4000', name: '超越極限', desc: '單次分數超過 4000 分', icon: '⚡' },
+  { id: 'score_5000', name: '跑酷之王', desc: '單次分數超過 5000 分', icon: '👑' },
+  { id: 'score_7500', name: '無法阻擋', desc: '單次分數超過 7500 分', icon: '🚀' },
+  { id: 'score_10000', name: '傳說降臨', desc: '單次分數超過 10000 分', icon: '🌟' },
+  // 金幣系列 (8)
+  { id: 'coin_1', name: '第一桶金', desc: '單次收集 1 個金幣', icon: '🪙' },
+  { id: 'coin_10', name: '零用錢', desc: '單次收集 10 個金幣', icon: '💰' },
+  { id: 'coin_25', name: '荷包滿滿', desc: '單次收集 25 個金幣', icon: '👛' },
+  { id: 'coin_50', name: '小財主', desc: '單次收集 50 個金幣', icon: '🤑' },
+  { id: 'coin_75', name: '財富自由', desc: '單次收集 75 個金幣', icon: '💸' },
+  { id: 'coin_100', name: '大富翁', desc: '單次收集 100 個金幣', icon: '💎' },
+  { id: 'coin_150', name: '聚寶盆', desc: '單次收集 150 個金幣', icon: '🏺' },
+  { id: 'coin_200', name: '富可敵國', desc: '單次收集 200 個金幣', icon: '🏰' },
+  // 變身系列 (6)
+  { id: 'transform_1', name: '驚喜箱', desc: '單次吃到 1 個變身道具', icon: '🎁' },
+  { id: 'transform_3', name: '變身學徒', desc: '單次吃到 3 個變身道具', icon: '🎭' },
+  { id: 'transform_5', name: '千面人', desc: '單次吃到 5 個變身道具', icon: '👽' },
+  { id: 'transform_10', name: '形體大師', desc: '單次吃到 10 個變身道具', icon: '🔮' },
+  { id: 'transform_15', name: '隨心所欲', desc: '單次吃到 15 個變身道具', icon: '🌀' },
+  { id: 'transform_20', name: '變形金剛', desc: '單次吃到 20 個變身道具', icon: '🤖' },
+  // 跳躍系列 (5)
+  { id: 'jump_5', name: '彈簧腿', desc: '單次跳躍 5 次', icon: '🦘' },
+  { id: 'jump_25', name: '活力四射', desc: '單次跳躍 25 次', icon: '🤸' },
+  { id: 'jump_50', name: '飛簷走壁', desc: '單次跳躍 50 次', icon: '🧗' },
+  { id: 'jump_100', name: '空中飛人', desc: '單次跳躍 100 次', icon: '🎪' },
+  { id: 'jump_150', name: '永不落地', desc: '單次跳躍 150 次', icon: '🦅' },
+  // 速度系列 (1)
+  { id: 'speed_10', name: '突破音障', desc: '遊戲速度達到 10', icon: '🏎️' },
 ];
 
 const ChameleonGame: React.FC = () => {
@@ -719,6 +749,8 @@ const ChameleonGame: React.FC = () => {
     let score = 0;
     let distance = 0;
     let coinsCollected = 0;
+    let transformCount = 0;
+    let jumpCount = 0;
     let gameSpeed = 3.5;
     let gameOverFlag = false;
     let isSpaceDown = false;
@@ -1090,7 +1122,14 @@ const ChameleonGame: React.FC = () => {
         const distY = Math.abs(coin.y - (player.y + player.height / 2));
         if (distX < (player.width / 2 + coin.radius) && distY < (player.height / 2 + coin.radius)) {
           coinsCollected++;
+          if (coinsCollected >= 1) tryUnlock('coin_1');
           if (coinsCollected >= 10) tryUnlock('coin_10');
+          if (coinsCollected >= 25) tryUnlock('coin_25');
+          if (coinsCollected >= 50) tryUnlock('coin_50');
+          if (coinsCollected >= 75) tryUnlock('coin_75');
+          if (coinsCollected >= 100) tryUnlock('coin_100');
+          if (coinsCollected >= 150) tryUnlock('coin_150');
+          if (coinsCollected >= 200) tryUnlock('coin_200');
           createParticles(coin.x, coin.y, theme.coinC['1'], 8);
           coins.splice(i, 1);
           i--;
@@ -1132,7 +1171,13 @@ const ChameleonGame: React.FC = () => {
           player.y + player.height > item.y + floatY
         ) {
           player.spriteKey = item.spriteKey;
-          tryUnlock('transform');
+          transformCount++;
+          if (transformCount >= 1) tryUnlock('transform_1');
+          if (transformCount >= 3) tryUnlock('transform_3');
+          if (transformCount >= 5) tryUnlock('transform_5');
+          if (transformCount >= 10) tryUnlock('transform_10');
+          if (transformCount >= 15) tryUnlock('transform_15');
+          if (transformCount >= 20) tryUnlock('transform_20');
           createParticles(item.x + 15, item.y + 15, item.color, 25);
           colorItems.splice(i, 1);
           i--;
@@ -1320,9 +1365,17 @@ const ChameleonGame: React.FC = () => {
       gameSpeed = 3.5 + (score / 400); 
       distance += gameSpeed;
 
+      if (score >= 100) tryUnlock('score_100');
       if (score >= 500) tryUnlock('score_500');
       if (score >= 1000) tryUnlock('score_1000');
       if (score >= 2000) tryUnlock('score_2000');
+      if (score >= 3000) tryUnlock('score_3000');
+      if (score >= 4000) tryUnlock('score_4000');
+      if (score >= 5000) tryUnlock('score_5000');
+      if (score >= 7500) tryUnlock('score_7500');
+      if (score >= 10000) tryUnlock('score_10000');
+      
+      if (gameSpeed >= 10) tryUnlock('speed_10');
 
       const newLevel = Math.floor(score / 1000) % THEMES.length;
       if (newLevel !== currentLevel) {
@@ -1359,11 +1412,23 @@ const ChameleonGame: React.FC = () => {
     };
 
     // --- 事件監聽器 ---
+    const checkJumpAchievements = () => {
+      if (!player.isJumping) {
+        jumpCount++;
+        if (jumpCount >= 5) tryUnlock('jump_5');
+        if (jumpCount >= 25) tryUnlock('jump_25');
+        if (jumpCount >= 50) tryUnlock('jump_50');
+        if (jumpCount >= 100) tryUnlock('jump_100');
+        if (jumpCount >= 150) tryUnlock('jump_150');
+      }
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         if (!e.repeat) {
            e.preventDefault();
            isSpaceDown = true;
+           checkJumpAchievements();
            player.startJump();
         }
       }
@@ -1378,6 +1443,7 @@ const ChameleonGame: React.FC = () => {
     const handlePointerDown = (e: Event) => {
       e.preventDefault();
       isSpaceDown = true;
+      checkJumpAchievements();
       player.startJump();
     };
     
