@@ -33,6 +33,8 @@ type Particle = {
   life: number;
   maxLife: number;
   size: number;
+  gravity?: number;
+  isLightning?: boolean;
 };
 
 // --- PIXEL ART SPRITES ---
@@ -42,16 +44,17 @@ const SPRITE_SETS: Record<string, { run1: string[], run2: string[], jump: string
       "                    ",
       "           XXXXXXX  ",
       "          X1111111X ",
-      "         X111W11111X",
-      "         X111B11111X",
+      "         X111WWW111X",
+      "         X111WBBW11X",
+      "         X1111WW111X",
       "         X11111XXXXX",
       "         X11111X    ",
-      "  XX     X11111XXXX ",
+      "  XXX    X11111XXXX ",
       " X11XX  XX11111111X ",
-      " X111XXXX11112221X  ",
-      " X111111111122221X  ",
-      "  X111111111111XX   ",
-      "   XXXXXXXXXXXX     ",
+      " X111XXXX111112221X ",
+      " X1111111111122221X ",
+      "  X1111111111111XX  ",
+      "   XXXXXXXXXXXXX    ",
       "        X1X X1X     ",
       "        XXX XXX     "
     ],
@@ -59,457 +62,512 @@ const SPRITE_SETS: Record<string, { run1: string[], run2: string[], jump: string
       "                    ",
       "           XXXXXXX  ",
       "          X1111111X ",
-      "         X111W11111X",
-      "         X111B11111X",
+      "         X111WWW111X",
+      "         X111WBBW11X",
+      "         X1111WW111X",
       "         X11111XXXXX",
       "         X11111X    ",
-      "  XX     X11111XXXX ",
+      "  XXX    X11111XXXX ",
       " X11XX  XX11111111X ",
-      " X111XXXX11112221X  ",
-      " X111111111122221X  ",
-      "  X111111111111XX   ",
-      "   XXXXXXXXXXXX     ",
-      "            X1X     ",
-      "           XXX      "
+      " X111XXXX111112221X ",
+      " X1111111111122221X ",
+      "  X1111111111111XX  ",
+      "   XXXXXXXXXXXXX    ",
+      "             X1X    ",
+      "            XXX     "
     ],
     jump: [
       "                    ",
       "           XXXXXXX  ",
       "          X1111111X ",
-      "         X111W11111X",
-      "         X111B11111X",
+      "         X111WWW111X",
+      "         X111WBBW11X",
+      "         X1111WW111X",
       "         X11111XXXXX",
       "         X11111X    ",
-      "  XX     X11111XXXX ",
+      "  XXX    X11111XXXX ",
       " X11XX  XX11111111X ",
-      " X111XXXX11112221X  ",
-      " X111111111122221X  ",
-      "  X111111111111XX   ",
-      "   XXXXXXX  XXX     ",
+      " X111XXXX111112221X ",
+      " X1111111111122221X ",
+      "  X1111111111111XX  ",
+      "   XXXXXXX  XXXX    ",
       "       XXX          ",
       "                    "
     ],
     colorMap: { 'X': '#145A32', '1': '#2ECC71', '2': '#58D68D', 'W': '#FFFFFF', 'B': '#000000' }
   },
-  knight: {
+                dino: {
     run1: [
-      "        XX          ",
-      "      XXPPXX        ",
-      "     XPPPPPPX       ",
-      "    XX111111XX      ",
-      "   X1111111111X     ",
-      "   X111BBWWBB1X     ",
-      "   X111BBWWBB1X     ",
-      "    XX111111XX      ",
-      "   XXX222222XXX     ",
-      " X X11X2222X11X X   ",
-      "X1XX11X2222X11XX1X  ",
-      "X1X XX111111XX X1X  ",
-      "XXX   X11X11X  XXX  ",
-      "      XXX XXX       ",
-      "                    "
+      "                    ",
+      "             XXXXXXX",
+      "            XX111W1X",
+      "            X1B11W1X",
+      "            X111111X",
+      "            X111111X",
+      "            XXX1111X",
+      "      XXXXXX  X11XXX",
+      "    XXX1111XXXX111X ",
+      "   XX111111111111X  ",
+      "  XX111111111XXXXX  ",
+      " XX11111111XX       ",
+      " X11111XXXX1X       ",
+      "  X11XXX  X1XX      ",
+      "   X2X     X2X      ",
+      "   XXX     XXX      "
     ],
     run2: [
-      "        XX          ",
-      "      XXPPXX        ",
-      "     XPPPPPPX       ",
-      "    XX111111XX      ",
-      "   X1111111111X     ",
-      "   X111BBWWBB1X     ",
-      "   X111BBWWBB1X     ",
-      "    XX111111XX      ",
-      "   XXX222222XXX     ",
-      " X X11X2222X11X X   ",
-      "X1XX11X2222X11XX1X  ",
-      "X1X XX111111XX X1X  ",
-      "XXX    X11XX   XXX  ",
-      "       XXXX         ",
-      "                    "
+      "                    ",
+      "             XXXXXXX",
+      "            XX111W1X",
+      "            X1B11W1X",
+      "            X111111X",
+      "            X111111X",
+      "            XXX1111X",
+      "      XXXXXX  X11XXX",
+      "    XXX1111XXXX111X ",
+      "   XX111111111111X  ",
+      "  XX111111111XXXXX  ",
+      " XX11111111XX       ",
+      " X11111XXXX         ",
+      "  X1111X            ",
+      "   X22XX            ",
+      "   XXXX             "
     ],
     jump: [
-      "        XX          ",
-      "      XXPPXX        ",
-      "     XPPPPPPX       ",
-      "    XX111111XX      ",
-      "   X1111111111X     ",
-      "   X111BBWWBB1X     ",
-      "   X111BBWWBB1X     ",
-      "    XX111111XX      ",
-      " X XXX222222XXX X   ",
-      "X1XX11X2222X11XX1X  ",
-      "X1X XX111111XX X1X  ",
-      "XXX   X11X11X  XXX  ",
-      "      XXX XXX       ",
       "                    ",
-      "                    "
+      "             XXXXXXX",
+      "            XX111W1X",
+      "            X1B11W1X",
+      "            X111111X",
+      "            X111111X",
+      "            XXX1111X",
+      "      XXXXXX  X11XXX",
+      "    XXX1111XXXX111X ",
+      "   XX111111111111X  ",
+      "  XX111111111XXXXX  ",
+      " XX11111111XX       ",
+      " X11111XXXX1X       ",
+      "  X1111X  XX2XX     ",
+      "   XX2XX   XXXX     ",
+      "   XXXX             "
     ],
-    colorMap: { 'X': '#2C3E50', '1': '#BDC3C7', '2': '#7F8C8D', 'P': '#E74C3C', 'W': '#F1C40F', 'B': '#000000' }
+    colorMap: { 'X': '#196F3D', '1': '#2ECC71', 'W': '#FFFFFF', '2': '#E67E22', 'B': '#000000' }
   },
   bird: {
     run1: [
       "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111X      ",
-      "   X111111W111X     ",
-      "   X111111B111X     ",
-      "   X11111111111XXXX ",
-      "  X11X11111111YYYYYX",
-      " X11XX111111111YYYYX",
-      " X11X111112211XXXXX ",
-      "  X1111112221XX     ",
-      "   XXXXX11221X      ",
+      "       XXXXXXX      ",
+      "     XX1111111X     ",
+      "    X111111W111X    ",
+      "    X111111WBB11X   ",
+      "    X11111111111XXX ",
+      "  XXX111111111YYYYYX",
+      "  X22XX11111111YYYYX",
+      " X2222X11111221XXXXX",
+      " X22222X112221XX    ",
+      "  XXXXXXX11221X     ",
       "      XXXXXXX       ",
       "       XYX XYX      ",
       "       YXY YXY      ",
+      "                    ",
       "                    "
     ],
     run2: [
       "                    ",
+      "       XXXXXXX      ",
+      "     XX1111111X     ",
+      " X  X111111W111X    ",
+      " XX X111111WBB11X   ",
+      " X2X111111111111XXX ",
+      " X22XX11111111YYYYYX",
+      "  X222XX1111111YYYYX",
+      "   X2222X111221XXXXX",
+      "    XXXXX12221XX    ",
+      "     XXXX11221X     ",
       "      XXXXXXX       ",
-      "    XX1111111X      ",
-      "   X111111W111X     ",
-      "   X111111B111X     ",
-      "   X11111111111XXXX ",
-      "   XX 11111111YYYYYX",
-      " X11XX111111111YYYYX",
-      " X11X111112211XXXXX ",
-      "  X 111112221XX     ",
-      "    XXXX11221X      ",
-      "      XXXXXXX       ",
-      "        XYX         ",
-      "        YXY         ",
+      "         XYX        ",
+      "         YXY        ",
+      "                    ",
       "                    "
     ],
     jump: [
-      "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111X      ",
-      "   X111111W111X     ",
-      "   X111111B111X     ",
-      " XXX11111111111XXXX ",
-      "X111XX11111111YYYYYX",
-      "X11111X11111111YYYYX",
-      " X1111X1112211XXXXX ",
-      "  XXXX1112221XX     ",
-      "      X11221X       ",
+      "    XX              ",
+      "   X22XXXXXXXX      ",
+      "  X222X1111111X     ",
+      " X2222X1111W111X    ",
+      "  XXXXX1111WBB11X   ",
+      "      X111111111XXX ",
+      "   XXX11111111YYYYYX",
+      "   X11XX1111111YYYYX",
+      "   X11X11111221XXXXX",
+      "    XXXX1112221XX   ",
+      "      XX112221X     ",
       "      XXXXXXX       ",
       "       XYX XYX      ",
       "       YXY YXY      ",
+      "                    ",
       "                    "
     ],
     colorMap: { 'X': '#1A5276', '1': '#3498DB', '2': '#85C1E9', 'Y': '#F1C40F', 'W': '#FFFFFF', 'B': '#000000' }
   },
-  robot: {
+          robot: {
     run1: [
-      "        XXX         ",
-      "        X2X         ",
-      "       XX2XX        ",
-      "     XXX111XXX      ",
-      "    X111111111X     ",
-      "    X111111111X     ",
-      "    X1B11111B1X     ",
-      "    X1G11111G1X     ",
-      "    X111111111X     ",
-      "   XX1X22222X1XX    ",
-      " X X11X11111X11X X  ",
-      "X1XX11X11111X11XX1X ",
-      "XXX   XXXXXXX   XXX ",
-      "      X2X X2X       ",
-      "      XXX XXX       "
+      "                    ",
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "    X1G111111G1X    ",
+      "   X111111111111X   ",
+      "   X111RRRRRR111X   ",
+      "   X111111111111X   ",
+      "   XXXXXXXXXXXXXX   ",
+      "    X1111111111X    ",
+      "  XXXX11111111XXXX  ",
+      " X111XX111111XX111X ",
+      " X222X X1111X X222X ",
+      " XXXX  XXXXXX  XXXX ",
+      "       X11XX11X     ",
+      "       X22XXXXX     ",
+      "       XXXX         "
     ],
     run2: [
-      "        XXX         ",
-      "        X2X         ",
-      "       XX2XX        ",
-      "     XXX111XXX      ",
-      "    X111111111X     ",
-      "    X111111111X     ",
-      "    X1B11111B1X     ",
-      "    X1G11111G1X     ",
-      "    X111111111X     ",
-      "   XX1X22222X1XX    ",
-      " X X11X11111X11X X  ",
-      "X1XX11X11111X11XX1X ",
-      "XXX   XXXXXXX   XXX ",
-      "        X2X         ",
-      "        XXX         "
+      "                    ",
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "    X1G111111G1X    ",
+      "   X111111111111X   ",
+      "   X111RRRRRR111X   ",
+      "   X111111111111X   ",
+      "   XXXXXXXXXXXXXX   ",
+      "    X1111111111X    ",
+      "  XXXX11111111XXXX  ",
+      " X111XX111111XX111X ",
+      " X222X X1111X X222X ",
+      " XXXX  XXXXXX  XXXX ",
+      "       X11XX11X     ",
+      "       XXXXX22X     ",
+      "           XXXX     "
     ],
     jump: [
-      "        XXX         ",
-      "        X2X         ",
-      "       XX2XX        ",
-      "     XXX111XXX      ",
-      "    X111111111X     ",
-      "    X111111111X     ",
-      "    X1B11111B1X     ",
-      "    X1G11111G1X     ",
-      "    X111111111X     ",
-      " X XX1X22222X1XX X  ",
-      "X1XX11X11111X11XX1X ",
-      "XXX   XXXXXXX   XXX ",
-      "      X2X X2X       ",
-      "      XXX XXX       ",
-      "                    "
+      "                    ",
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "    X1G111111G1X    ",
+      "   X111111111111X   ",
+      "   X11RRRRRRRR11X   ",
+      "   X111111111111X   ",
+      "   XXXXXXXXXXXXXX   ",
+      "    X1111111111X    ",
+      "  XXXX11111111XXXX  ",
+      " X111XX111111XX111X ",
+      " X222X X1111X X222X ",
+      " XXXX  XXXXXX  XXXX ",
+      "       X11XX11X     ",
+      "       XFFXXFFX     ",
+      "       XXXXXXXX     "
     ],
-    colorMap: { 'X': '#17202A', '1': '#95A5A6', '2': '#F39C12', 'G': '#00FFFF', 'B': '#000000' }
+    colorMap: { 'X': '#1C2833', '1': '#BDC3C7', '2': '#E67E22', 'G': '#2ECC71', 'F': '#F1C40F', 'R': '#E74C3C' }
   },
   ninja: {
     run1: [
       "                    ",
-      "      XXXXXXX       ",
-      "     X1111111X      ",
-      "     XRRRRRRRX      ",
-      "     X22B2B22X      ",
-      "     X2222222X      ",
-      "     X1111111X      ",
-      "  XXX X11111X XXX   ",
-      "  X1XXX11111XXX1X   ",
-      "  X11X11R1R11X11X   ",
-      "  XXX X11111X XXX   ",
-      "      X11111X       ",
-      "      XXXXXXX       ",
-      "      X1X X1X       ",
-      "      XXX XXX       "
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "     X11111111X     ",
+      "     XRRRRRRRRX     ",
+      "     X22BB2BB2X     ",
+      "     X22222222X     ",
+      "     X11111111X     ",
+      "  XXXXX111111XXXXX  ",
+      "  X11XXX1111XXX11X  ",
+      "  X111X11RR11X111X  ",
+      "  XXXXX111111XXXXX  ",
+      "      X111111X      ",
+      "      XXXXXXXX      ",
+      "      XX1  1XX      ",
+      "      XXX  XXX      "
     ],
     run2: [
       "                    ",
-      "      XXXXXXX       ",
-      "     X1111111X      ",
-      "     XRRRRRRRX      ",
-      "     X22B2B22X      ",
-      "     X2222222X      ",
-      "     X1111111X      ",
-      "  XXX X11111X XXX   ",
-      "  X1XXX11111XXX1X   ",
-      "  X11X11R1R11X11X   ",
-      "  XXX X11111X XXX   ",
-      "      X11111X       ",
-      "      XXXXXXX       ",
-      "       X1X          ",
-      "       XXX          "
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "     X11111111X     ",
+      "     XRRRRRRRRX     ",
+      "     X22BB2BB2X     ",
+      "     X22222222X     ",
+      "     X11111111X     ",
+      "  XXXXX111111XXXXX  ",
+      "  X11XXX1111XXX11X  ",
+      "  X111X11RR11X111X  ",
+      "  XXXXX111111XXXXX  ",
+      "      X111111X      ",
+      "      XXXXXXXX      ",
+      "           X1X      ",
+      "           XXX      "
     ],
     jump: [
-      "      XXXXXXX       ",
-      "     X1111111X      ",
-      "     XRRRRRRRX      ",
-      "     X22B2B22X      ",
-      "     X2222222X      ",
-      "     X1111111X      ",
-      "  XXX X11111X XXX   ",
-      "  X1XXX11111XXX1X   ",
-      "  X11X11R1R11X11X   ",
-      "  XXX X11111X XXX   ",
-      "      X11111X       ",
-      "      XXXXXXX       ",
-      "     XX1X X1XX      ",
-      "    XXX     XXX     ",
-      "                    "
+      "                    ",
+      "      XXXXXXXX      ",
+      "     X11111111X     ",
+      "     X11111111X     ",
+      "     XRRRRRRRRX     ",
+      "     X22BB2BB2X     ",
+      "     X22222222X     ",
+      "     X11111111X     ",
+      "  XXXXX111111XXXXX  ",
+      "  X11XXX1111XXX11X  ",
+      "  X111X11RR11X111X  ",
+      "  XXXXX111111XXXXX  ",
+      "      X111111X      ",
+      "      XXXXXXXX      ",
+      "     XX1X  X1XX     ",
+      "     XXXX  XXXX     "
     ],
     colorMap: { 'X': '#000000', '1': '#2C3E50', '2': '#F5CBA7', 'R': '#E74C3C', 'B': '#000000' }
   },
   alien: {
     run1: [
-      "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11WWW111WWW11X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X11WWW111WWW11X   ",
-      "   X11111111111X    ",
-      "    X222111222X     ",
-      "    XX2222222XX     ",
-      "      X11111X       ",
-      "     XX1X X1XX      ",
-      "    XX X   X XX     ",
-      "                    "
+      "        XXXX        ",
+      "      XX1111XX      ",
+      "     X11111111X     ",
+      "    X1WWWWWWWW1X    ",
+      "    XWB11WW11BWX    ",
+      "    XWBB1WW1BBWX    ",
+      "    XWWWWWWWWWWX    ",
+      "     XX111111XX     ",
+      "   XXXXX2222XXXXX   ",
+      "  XX333333333333XX  ",
+      " X3333333333333333X ",
+      "X333443344334433443X",
+      "X333333333333333333X",
+      " XX33333333333333XX ",
+      "   XXXXX    XXXXX   ",
+      "     XX      XX     "
     ],
     run2: [
-      "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11WWW111WWW11X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X11WWW111WWW11X   ",
-      "   X11111111111X    ",
-      "    X222111222X     ",
-      "    XX2222222XX     ",
-      "      X11111X       ",
-      "      XX1X1XX       ",
-      "       X   X        ",
-      "                    "
+      "        XXXX        ",
+      "      XX1111XX      ",
+      "     X11111111X     ",
+      "    X1WWWWWWWW1X    ",
+      "    XWB11WW11BWX    ",
+      "    XWBB1WW1BBWX    ",
+      "    XWWWWWWWWWWX    ",
+      "     XX111111XX     ",
+      "   XXXXX2222XXXXX   ",
+      "  XX333333333333XX  ",
+      " X3333333333333333X ",
+      "X333443344334433443X",
+      "X333333333333333333X",
+      " XX33333333333333XX ",
+      "     XX      XX     ",
+      "   XXXXX    XXXXX   "
     ],
     jump: [
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11WWW111WWW11X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X1WBBBW1WBBBW1X   ",
-      "  X11WWW111WWW11X   ",
-      "   X11111111111X    ",
-      "    X222111222X     ",
-      "    XX2222222XX     ",
-      "      X11111X       ",
-      "     XX1X X1XX      ",
-      "    XX X   X XX     ",
-      "                    ",
+      "        XXXX        ",
+      "      XX1111XX      ",
+      "     X11111111X     ",
+      "    X1WWWWWWWW1X    ",
+      "    XWB11WW11BWX    ",
+      "    XWBB1WW1BBWX    ",
+      "    XWWWWWWWWWWX    ",
+      "     XX111111XX     ",
+      "   XXXXX2222XXXXX   ",
+      "  XX333333333333XX  ",
+      " X3333333333333333X ",
+      "X333443344334433443X",
+      "X333333333333333333X",
+      " XX33333333333333XX ",
+      "   X X X    X X X   ",
       "                    "
     ],
-    colorMap: { 'X': '#000000', '1': '#9b59b6', '2': '#8e44ad', 'W': '#ecf0f1', 'B': '#000000' }
+    colorMap: { 'X': '#000000', '1': '#9b59b6', '2': '#BDC3C7', '3': '#7F8C8D', '4': '#F1C40F', 'W': '#ecf0f1', 'B': '#000000' }
   },
-  ghost: {
+    ghost: {
     run1: [
       "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11W111111W111X   ",
-      "  X11B111111B111X   ",
-      "  X11111WW111111X   ",
-      "  X1111WBBW11111X   ",
-      "  X11111WW111111X   ",
-      "   X11111111111X    ",
-      "   X11111111111X    ",
-      "  XXXX11X111XXXX    ",
-      "  X11X X1X X111X    ",
-      "  X X   X   X XX    ",
+      "        XXXXX       ",
+      "      XX11111XX     ",
+      "     X111111111X    ",
+      "    X11WW111WW11X   ",
+      "    X11BB111BB11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11WBBBBBW11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    X11XX111XX11X   ",
+      "    X1XX X1XX X1X   ",
+      "    X X  XXX  X X   ",
       "                    "
     ],
     run2: [
       "                    ",
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11W111111W111X   ",
-      "  X11B111111B111X   ",
-      "  X11111WW111111X   ",
-      "  X1111WBBW11111X   ",
-      "  X11111WW111111X   ",
-      "   X11111111111X    ",
-      "   X11111111111X    ",
-      "   XXXX11X11XXXX    ",
-      "   X11X X1X X11X    ",
-      "    XX   X   XX     ",
+      "        XXXXX       ",
+      "      XX11111XX     ",
+      "     X111111111X    ",
+      "    X11WW111WW11X   ",
+      "    X11BB111BB11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11WBBBBBW11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    XX11XX1XX11XX   ",
+      "     X1XX XXX XX1X  ",
+      "      XX   X   XX   ",
       "                    "
     ],
     jump: [
-      "      XXXXXXX       ",
-      "    XX1111111XX     ",
-      "   X11111111111X    ",
-      "  X11W111111W111X   ",
-      "  X11B111111B111X   ",
-      "  X11111WW111111X   ",
-      "  X1111WBBW11111X   ",
-      "  X11111WW111111X   ",
-      "   X11111111111X    ",
-      "   X11111111111X    ",
-      "  XXXX11X111XXXX    ",
-      "  X11X X1X X111X    ",
-      "  X X   X   X XX    ",
       "                    ",
+      "        XXXXX       ",
+      "      XX11111XX     ",
+      "     X111111111X    ",
+      "    X11WW111WW11X   ",
+      "    X11BB111BB11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11WBBBBBW11X   ",
+      "    X11WWWWWWW11X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    X11111111111X   ",
+      "    X11XX111XX11X   ",
+      "    X1XX X1XX X1X   ",
+      "    X X  XXX  X X   ",
       "                    "
     ],
-    colorMap: { 'X': '#2C3E50', '1': '#ECF0F1', 'W': '#FFFFFF', 'B': '#000000' }
+    colorMap: { 'X': '#000000', '1': '#9b59b6', 'W': '#ecf0f1', 'B': '#000000' }
   }
 };
 
 const SPRITE_KEYS = Object.keys(SPRITE_SETS);
 
-const OBS_SHORT_1 = [
-  "   XX   ",
-  "  X11X  ",
-  "  X11X X",
-  "X X11XX1X",
-  "X1X11X11X",
-  "XX11111XX",
-  " XX111X ",
-  "  X11X  ",
-  "  X11X  ",
-  " X1111X "
-];
-
-const OBS_SHORT_2 = [
-  "    XX  ",
-  "   X11X ",
-  " X X11X ",
-  "X1XX11X ",
-  "X11X11XX",
-  "XX11111X",
-  " XX11XX ",
-  "  X11X  ",
-  "  X11X  ",
-  " X1111X "
-];
-
-const OBS_TALL_1 = [
-  "   XX   ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X X",
-  "X X11XX1X",
-  "X1X11X11X",
-  "X1X11X11X",
-  "XX11111XX",
-  " XX111X ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  " X1111X ",
-  " X1111X ",
-  " X1111X "
-];
-
-const OBS_TALL_2 = [
-  "   XX   ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  " X X11X ",
-  "X1XX11X ",
-  "X11X11XX",
-  "XX11111X",
-  " XX11XX ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  "  X11X  ",
-  " X1111X ",
-  " X1111X ",
-  " X1111X "
-];
+const OBS_SHAPES = {
+  grass: {
+    short: [
+      "   XX   ",
+      "  X11X  ",
+      "  X11X X",
+      "X X11XX1X",
+      "X1X11X11X",
+      "XX11111XX",
+      " XX111X ",
+      "  X11X  ",
+      "  X11X  ",
+      " X1111X "
+    ],
+    tall: [
+      "   XX   ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X X",
+      "X X11XX1X",
+      "X1X11X11X",
+      "XX11111XX",
+      " XX111X ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      " X1111X "
+    ]
+  },
+  desert: {
+    short: [
+      "        ",
+      "        ",
+      "        ",
+      "   XX   ",
+      "  X11X  ",
+      " X1111X ",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "XXXXXXXX"
+    ],
+    tall: [
+      "   XX   ",
+      "  X11X  ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "XXXXXXXX"
+    ]
+  },
+  neon: {
+    short: [
+      " XXXXXX ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " XXXXXX "
+    ],
+    tall: [
+      " XXXXXX ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " XXXXXX "
+    ]
+  },
+  ice: {
+    short: [
+      "   XX   ",
+      "  X11X  ",
+      "  X11X  ",
+      " X1111X ",
+      " X1111X ",
+      "X111111X",
+      "X111111X",
+      "X1X11X1X",
+      "X11XX11X",
+      "XXXXXXXX"
+    ],
+    tall: [
+      "   XX   ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      "  X11X  ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      " X1111X ",
+      "X111111X",
+      "X111111X",
+      "X111111X",
+      "X1X11X1X",
+      "X11XX11X",
+      "XXXXXXXX"
+    ]
+  }
+};
 
 const COIN_FRAMES = [
   [
@@ -619,13 +677,14 @@ const ChameleonGame: React.FC = () => {
     let score = 0;
     let distance = 0;
     let coinsCollected = 0;
-    let gameSpeed = 5;
+    let gameSpeed = 3.5;
     let gameOverFlag = false;
     let isSpaceDown = false;
 
     let nextObstacleFrame = 120;
     let nextCoinFrame = 90;
-    let nextColorFrame = 350;
+    let nextColorFrame = 175;
+    let colorBag: string[] = [];
     
     // 背景裝飾
     let clouds: {x: number, y: number, speed: number}[] = [
@@ -653,9 +712,9 @@ const ChameleonGame: React.FC = () => {
     // 玩家物件
     const player = {
       x: 50,
-      y: 350 - 45,
-      width: 60, // 20 * 3
-      height: 45, // 15 * 3
+      y: 350 - 51.2,
+      width: 64, // 20 * 3.2
+      height: 51.2, // 16 * 3.2
       spriteKey: SPRITE_KEYS[Math.floor(Math.random() * SPRITE_KEYS.length)],
       velocityY: 0,
       gravity: 0.8,
@@ -663,7 +722,7 @@ const ChameleonGame: React.FC = () => {
       jumpTime: 0,
 
       draw() {
-        const pSize = 3;
+        const pSize = 3.2;
         const spriteData = SPRITE_SETS[this.spriteKey];
         const colorMap = spriteData.colorMap;
 
@@ -679,7 +738,129 @@ const ChameleonGame: React.FC = () => {
           }
         }
 
-        drawSprite(ctx, currentSprite, this.x, this.y, pSize, colorMap);
+        let baseAlpha = ctx.globalAlpha;
+        if (this.spriteKey === 'ghost') {
+           // 幽靈透明化與實體化
+           ctx.globalAlpha = 0.3 + 0.7 * Math.abs(Math.sin(frames / 10));
+        }
+
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        
+        let scaleX = 1;
+        let scaleY = 1;
+        let rotation = 0;
+        
+        if (this.spriteKey === 'dino') {
+           scaleX = 1.2;
+           scaleY = 1.2;
+        }
+        
+        if (this.isJumping) {
+          const t = frames - this.jumpTime;
+          
+          if (this.spriteKey === 'ninja') {
+             // 忍者前空翻
+             rotation = (t * 0.15) % (Math.PI * 2);
+          } else if (this.spriteKey === 'trex') {
+             // 暴龍伸展
+             scaleY = 1 + Math.sin(t * 0.2) * 0.2;
+             scaleX = 1 - Math.sin(t * 0.2) * 0.1;
+          } else if (this.spriteKey === 'bird') {
+             // 小鳥拍動縮放
+             scaleY = 1 + Math.sin(t * 0.5) * 0.2;
+          } else if (this.spriteKey === 'dino') {
+             // 騎士後仰
+             rotation = -0.3 + Math.sin(t * 0.1) * 0.1;
+             scaleX = 1.2;
+             scaleY = 1.2;
+          } else if (this.spriteKey === 'robot') {
+             // 機器人抖動
+             ctx.translate(Math.random() * 4 - 2, Math.random() * 4 - 2);
+          } else if (this.spriteKey === 'alien') {
+             // 外星人盤旋傾斜
+             rotation = Math.sin(t * 0.1) * 0.2;
+          } else if (this.spriteKey === 'ghost') {
+             // 幽靈閃爍放大
+             scaleX = 1 + Math.sin(t * 0.3) * 0.3;
+             scaleY = 1 + Math.sin(t * 0.3) * 0.3;
+          }
+        }
+        
+        ctx.rotate(rotation);
+        ctx.scale(scaleX, scaleY);
+        
+        // drawSprite centers inside the translate so we pass negative half sizes
+        drawSprite(ctx, currentSprite, -(currentSprite[0].length * pSize) / 2, -(currentSprite.length * pSize) / 2, pSize, colorMap);
+        ctx.restore();
+        
+        ctx.globalAlpha = baseAlpha;
+
+        // 新增角色特色特效
+        if (frames % 4 === 0) {
+          if (this.spriteKey === 'trex') {
+            // 嘴巴噴火
+            for(let i=0; i<2; i++) {
+               particles.push({
+                 x: this.x + this.width - 5, y: this.y + 12,
+                 vx: Math.random() * 5 + 5, vy: (Math.random() - 0.5) * 3,
+                 color: Math.random() > 0.5 ? '#E74C3C' : '#F1C40F',
+                 life: 1.0, maxLife: Math.random() * 10 + 10, size: Math.random() * 4 + 3, gravity: 0.1
+               });
+            }
+          }
+          else if (this.spriteKey === 'dino') {
+            // 揮動刀子 (刀光特效)
+            if (frames % 12 === 0 || frames % 12 === 4) {
+               particles.push({
+                 x: this.x + this.width + (frames%12)*2, y: this.y + 8 + (frames%12)*1.5,
+                 vx: 2, vy: 2,
+                 color: '#FFFFFF',
+                 life: 1.0, maxLife: 8, size: Math.random() * 3 + 2
+               });
+            }
+          }
+          else if (this.spriteKey === 'bird') {
+            // 拍動翅膀 (掉落羽毛)
+            particles.push({
+              x: this.x + 16, y: this.y + 24,
+              vx: -3, vy: Math.random() * 0.5 + 0.5,
+              color: '#FFFFFF',
+              life: 1.0, maxLife: 20, size: Math.random() * 3 + 1, gravity: 0.2
+            });
+          }
+          else if (this.spriteKey === 'robot') {
+            // 發出閃電
+            if (Math.random() > 0.5) {
+              particles.push({
+                x: this.x + Math.random()*this.width, y: this.y + Math.random()*this.height,
+                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                color: '#00FFFF',
+                life: 1.0, maxLife: 5, size: Math.random() * 4 + 2
+              });
+            }
+          }
+          else if (this.spriteKey === 'ninja') {
+            // 射出飛鏢
+            if (frames % 16 === 0) {
+              particles.push({
+                x: this.x + this.width, y: this.y + 24,
+                vx: 12, vy: 0,
+                color: '#BDC3C7',
+                life: 1.0, maxLife: 30, size: 5, gravity: 0
+              });
+            }
+          }
+          else if (this.spriteKey === 'alien') {
+            // 飛碟尾跡
+            particles.push({
+              x: this.x + this.width/2 + (Math.random()-0.5)*16, y: this.y + this.height - 8,
+              vx: -3, vy: Math.random() * 3 + 2,
+              color: '#2ECC71',
+              life: 1.0, maxLife: 15, size: Math.random() * 4 + 2
+            });
+          }
+        }
       },
 
       update() {
@@ -697,10 +878,32 @@ const ChameleonGame: React.FC = () => {
 
       startJump() {
         if (!this.isJumping) {
-          this.velocityY = -10; // 小跳躍
+          this.velocityY = -11; // 小跳躍
           this.isJumping = true;
           this.jumpTime = frames;
-          // 跳躍特效
+          // 特色跳躍特效
+          let effectColor = '#FFFFFF';
+          if (this.spriteKey === 'trex') { effectColor = '#E74C3C'; }
+          else if (this.spriteKey === 'dino') { effectColor = '#BDC3C7'; }
+          else if (this.spriteKey === 'bird') { effectColor = '#F1C40F'; }
+          else if (this.spriteKey === 'robot') {
+            effectColor = '#00FFFF';
+            for(let i=0; i<4; i++) {
+               particles.push({
+                 x: this.x + this.width / 2 + (Math.random() - 0.5) * 40,
+                 y: this.y + this.height / 2 + (Math.random() - 0.5) * 40,
+                 vx: (Math.random() - 0.5) * 3,
+                 vy: (Math.random() - 0.5) * 3,
+                 color: '#00FFFF',
+                 life: 1.0, maxLife: 15, size: 2, gravity: 0,
+                 isLightning: true
+               });
+            }
+          }
+          else if (this.spriteKey === 'ninja') { effectColor = '#34495E'; }
+          else if (this.spriteKey === 'alien') { effectColor = '#9b59b6'; }
+
+          createParticles(this.x + this.width / 2, this.y + this.height, effectColor, 12);
           createParticles(this.x + this.width / 2, this.y + this.height, 'white', 5);
         }
       },
@@ -725,6 +928,7 @@ const ChameleonGame: React.FC = () => {
         mountain: '#A0C488',
         ground: '#654321', groundTop: '#2ecc71', groundSpot: ['#4e3419', '#5c3a21'],
         obsC: { 'X': '#1e3822', '1': '#2d8244' }, // Grass cactus
+        obsKey: 'grass',
         coinC: { 'X': '#d35400', '1': '#f1c40f' } // Gold
       },
       { // 1: 沙漠
@@ -732,6 +936,7 @@ const ChameleonGame: React.FC = () => {
         mountain: '#D38D5F',
         ground: '#C28253', groundTop: '#E6A875', groundSpot: ['#A4653A', '#B57348'],
         obsC: { 'X': '#5C4033', '1': '#8f9779' }, // Olive
+        obsKey: 'desert',
         coinC: { 'X': '#7f8c8d', '1': '#ecf0f1' } // Silver
       },
       { // 2: 霓虹之夜
@@ -739,6 +944,7 @@ const ChameleonGame: React.FC = () => {
         mountain: '#1D2235',
         ground: '#0B0D17', groundTop: '#FF2A6D', groundSpot: ['#1A1C29', '#21263A'],
         obsC: { 'X': '#05D9E8', '1': '#01FFE1' }, // Neon Blue
+        obsKey: 'neon',
         coinC: { 'X': '#D1F2A5', '1': '#EFFCB9' } // Neon Green
       },
       { // 3: 冰雪仙境
@@ -746,6 +952,7 @@ const ChameleonGame: React.FC = () => {
         mountain: '#FFFFFF',
         ground: '#a0b0b9', groundTop: '#FFFFFF', groundSpot: ['#889ca6', '#728892'],
         obsC: { 'X': '#2980B9', '1': '#6DD5FA' }, // Ice
+        obsKey: 'ice',
         coinC: { 'X': '#c0392b', '1': '#ff4d4d' } // Ruby
       }
     ];
@@ -756,21 +963,22 @@ const ChameleonGame: React.FC = () => {
       // 減少生成頻率
       if (frames >= nextObstacleFrame) {
         const isTall = Math.random() > 0.4;
-        const type = Math.random() > 0.5 ? 1 : 2;
-        const spriteArray = isTall ? (type === 1 ? OBS_TALL_1 : OBS_TALL_2) : (type === 1 ? OBS_SHORT_1 : OBS_SHORT_2);
-        const height = spriteArray.length * 3;
-        const width = spriteArray[0].length * 3;
+        const shapes = OBS_SHAPES[theme.obsKey as keyof typeof OBS_SHAPES];
+        const spriteArray = isTall ? shapes.tall : shapes.short;
+        const scale = 3.6;
+        const height = spriteArray.length * scale;
+        const width = spriteArray[0].length * scale;
         obstacles.push({ x: canvas.width, y: 350 - height, width, height, spriteArray });
         
         const currentSpawnRate = Math.max(50, 120 - Math.floor(score / 30));
-        nextObstacleFrame = frames + currentSpawnRate + Math.floor(Math.random() * 40);
+        nextObstacleFrame = frames + currentSpawnRate + Math.floor(Math.random() * 80) + (Math.random() > 0.8 ? 60 : 0);
       }
 
       for (let i = 0; i < obstacles.length; i++) {
         const obs = obstacles[i];
         obs.x -= gameSpeed;
 
-        drawSprite(ctx, obs.spriteArray, obs.x, obs.y, 3, theme.obsC);
+        drawSprite(ctx, obs.spriteArray, obs.x, obs.y, 3.6, theme.obsC);
 
         // 碰撞偵測 (碰到障礙物) - 縮小一點 hitbox 比較友善
         const hitboxShrinkX = 15;
@@ -821,10 +1029,13 @@ const ChameleonGame: React.FC = () => {
 
     const handleColorItems = () => {
       if (frames >= nextColorFrame) {
-        const randomKey = SPRITE_KEYS[Math.floor(Math.random() * SPRITE_KEYS.length)];
+        if (colorBag.length === 0) {
+           colorBag = [...SPRITE_KEYS].sort(() => Math.random() - 0.5);
+        }
+        const randomKey = colorBag.pop()!;
         const randomColor = SPRITE_SETS[randomKey].colorMap['1'] || '#fff';
         colorItems.push({ x: canvas.width, y: 350 - (Math.random() * 60 + 30), width: 30, height: 30, color: randomColor, spriteKey: randomKey });
-        nextColorFrame = frames + 400 + Math.floor(Math.random() * 200);
+        nextColorFrame = frames + 200 + Math.floor(Math.random() * 100);
       }
 
       for (let i = 0; i < colorItems.length; i++) {
@@ -865,7 +1076,7 @@ const ChameleonGame: React.FC = () => {
         let p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.2; // gravity for particles
+        p.vy += 0.2 * (p.gravity !== undefined ? p.gravity : 1); // gravity for particles
         p.life -= 1 / p.maxLife;
 
         if (p.life <= 0) {
@@ -875,8 +1086,23 @@ const ChameleonGame: React.FC = () => {
         }
 
         ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+        if (p.isLightning) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            let lx = p.x;
+            let ly = p.y;
+            for(let step = 0; step < 3; step++) {
+               lx += Math.random()*20 - 10;
+               ly += Math.random()*20 - 10;
+               ctx.lineTo(lx, ly);
+            }
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        } else {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+        }
       }
       ctx.globalAlpha = 1.0;
     };
@@ -981,20 +1207,25 @@ const ChameleonGame: React.FC = () => {
       ctx.fillText(`HI: ${displayHighScore}`, canvas.width - 150, 30);
     };
 
-    let lastTimestamp = 0;
-    const fpsInterval = 1000 / 60;
-
     // --- 遊戲主迴圈 ---
-    const gameLoop = (timestamp: number) => {
-      if (!lastTimestamp) lastTimestamp = timestamp;
-      const deltaTime = timestamp - lastTimestamp;
+    let lastTime = 0;
+    const FPS = 60;
+    const frameInterval = 1000 / FPS;
 
-      if (!gameOverFlag) {
-        animationId = requestAnimationFrame(gameLoop);
+    const gameLoop = (timestamp?: number) => {
+      const currentTimestamp = timestamp || performance.now();
+      
+      if (!lastTime) lastTime = currentTimestamp;
+      const deltaTime = currentTimestamp - lastTime;
+
+      if (deltaTime < frameInterval) {
+        if (!gameOverFlag) {
+          animationId = requestAnimationFrame(gameLoop);
+        }
+        return;
       }
-
-      if (deltaTime < fpsInterval) return;
-      lastTimestamp = timestamp - (deltaTime % fpsInterval);
+      
+      lastTime = currentTimestamp - (deltaTime % frameInterval);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1013,10 +1244,10 @@ const ChameleonGame: React.FC = () => {
       frames++;
       
       // 難度與場景隨分數增加
-      gameSpeed = Math.min(14, 4 + score / 800); 
+      gameSpeed = 3.5 + (score / 400); 
       distance += gameSpeed;
 
-      const newLevel = Math.min(Math.floor(score / 1000), THEMES.length - 1);
+      const newLevel = Math.floor(score / 1000) % THEMES.length;
       if (newLevel !== currentLevel) {
         currentLevel = newLevel;
         levelTransitionFrames = 120; // 顯示兩秒升級提示
@@ -1027,12 +1258,14 @@ const ChameleonGame: React.FC = () => {
          ctx.font = "bold 40px monospace";
          ctx.textAlign = "center";
          const levelNames = ["草原", "沙漠", "霓虹之夜", "冰雪仙境"];
-         ctx.fillText(`STAGE ${currentLevel + 1}: ${levelNames[currentLevel]}`, canvas.width / 2, canvas.height / 3);
+         ctx.fillText(`STAGE ${Math.floor(score / 1000) + 1}: ${levelNames[currentLevel]}`, canvas.width / 2, canvas.height / 3);
          ctx.textAlign = "left";
          levelTransitionFrames--;
       }
 
-      if (gameOverFlag) {
+      if (!gameOverFlag) {
+        animationId = requestAnimationFrame(gameLoop);
+      } else {
         if (score > highScoreRef.current) {
           highScoreRef.current = score;
           setHighScore(score);
@@ -1083,7 +1316,7 @@ const ChameleonGame: React.FC = () => {
     canvas.addEventListener('touchend', handlePointerUp as EventListener);
 
     // 啟動遊戲
-    animationId = requestAnimationFrame(gameLoop);
+    gameLoop();
 
     // --- 清除 Effect ---
     return () => {

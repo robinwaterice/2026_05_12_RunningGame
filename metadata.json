@@ -1,0 +1,6 @@
+{
+  "name": "16-bit 變色龍跑酷",
+  "description": "一個類似 Chrome 恐龍的變色龍跑酷遊戲，可以跳躍、吃金幣、變換顏色。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
