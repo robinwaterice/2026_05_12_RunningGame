@@ -1,4 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
+import dinoImgSrc from '../images_edited.png';
+
+const dinoImage = new Image();
+dinoImage.src = dinoImgSrc;
 
 type Obstacle = {
   x: number;
@@ -790,8 +794,37 @@ const ChameleonGame: React.FC = () => {
         ctx.rotate(rotation);
         ctx.scale(scaleX, scaleY);
         
-        // drawSprite centers inside the translate so we pass negative half sizes
-        drawSprite(ctx, currentSprite, -(currentSprite[0].length * pSize) / 2, -(currentSprite.length * pSize) / 2, pSize, colorMap);
+        if (this.spriteKey === 'dino') {
+          ctx.drawImage(dinoImage, -this.width / 2, -this.height / 2, this.width, this.height);
+          
+          // 起跳時吐出舌頭特效
+          if (this.isJumping) {
+            const t = frames - this.jumpTime;
+            const tongueLength = Math.min(25, t * 1.5);
+            const tongueWobble = Math.sin(t * 0.5) * 4; // 舌頭上下晃動
+            
+            ctx.fillStyle = '#ff4d4d';
+            ctx.beginPath();
+            // 假設嘴巴大約在右上角
+            const mouthX = this.width / 2 - 10; 
+            const mouthY = -this.height / 6;
+            
+            ctx.moveTo(mouthX, mouthY);
+            // 用貝茲曲線畫出舌頭的形狀
+            ctx.quadraticCurveTo(
+              mouthX + tongueLength * 0.5, mouthY - 5,
+              mouthX + tongueLength, mouthY + tongueWobble + tongueLength * 0.2
+            );
+            ctx.quadraticCurveTo(
+              mouthX + tongueLength * 0.5, mouthY + 10,
+              mouthX, mouthY + 8
+            );
+            ctx.fill();
+          }
+        } else {
+          // drawSprite centers inside the translate so we pass negative half sizes
+          drawSprite(ctx, currentSprite, -(currentSprite[0].length * pSize) / 2, -(currentSprite.length * pSize) / 2, pSize, colorMap);
+        }
         ctx.restore();
         
         ctx.globalAlpha = baseAlpha;
