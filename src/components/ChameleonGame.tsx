@@ -650,6 +650,15 @@ const drawSprite = (
   }
 };
 
+export const ACHIEVEMENTS_DATA = [
+  { id: 'first_play', name: '初次出擊', desc: '開始第一場跑酷', icon: '🏁' },
+  { id: 'score_500', name: '跑酷初學者', desc: '單次分數超過 500 分', icon: '🥉' },
+  { id: 'score_1000', name: '跑酷老手', desc: '單次分數超過 1000 分', icon: '🥈' },
+  { id: 'score_2000', name: '跑酷大師', desc: '單次分數超過 2000 分', icon: '🥇' },
+  { id: 'coin_10', name: '金幣獵人', desc: '單次收集 10 個金幣', icon: '💰' },
+  { id: 'transform', name: '百變怪', desc: '吃到 1 次變身道具', icon: '✨' },
+];
+
 const ChameleonGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -659,6 +668,14 @@ const ChameleonGame: React.FC = () => {
     return saved ? parseInt(saved, 10) : 0;
   });
   const highScoreRef = useRef(highScore);
+
+  // 成就系統狀態
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>(() => {
+    const saved = localStorage.getItem('chameleonAchievements');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [achievementNotification, setAchievementNotification] = useState<{name: string, icon: string} | null>(null);
 
   // 重新開始遊戲
   const handleRestart = () => {
@@ -675,6 +692,27 @@ const ChameleonGame: React.FC = () => {
     if (!ctx) return;
 
     let animationId: number;
+
+    const sessionUnlocked = new Set(unlockedAchievements);
+    
+    const tryUnlock = (id: string) => {
+      if (!sessionUnlocked.has(id)) {
+        sessionUnlocked.add(id);
+        setUnlockedAchievements(prev => {
+          if (prev.includes(id)) return prev;
+          const newArr = [...prev, id];
+          localStorage.setItem('chameleonAchievements', JSON.stringify(newArr));
+          const ach = ACHIEVEMENTS_DATA.find(a => a.id === id);
+          if (ach) {
+            setAchievementNotification({ name: ach.name, icon: ach.icon });
+            setTimeout(() => setAchievementNotification(null), 3000);
+          }
+          return newArr;
+        });
+      }
+    };
+    
+    tryUnlock('first_play');
 
     // --- 遊戲狀態變數 ---
     let frames = 0;
@@ -1052,6 +1090,7 @@ const ChameleonGame: React.FC = () => {
         const distY = Math.abs(coin.y - (player.y + player.height / 2));
         if (distX < (player.width / 2 + coin.radius) && distY < (player.height / 2 + coin.radius)) {
           coinsCollected++;
+          if (coinsCollected >= 10) tryUnlock('coin_10');
           createParticles(coin.x, coin.y, theme.coinC['1'], 8);
           coins.splice(i, 1);
           i--;
@@ -1093,6 +1132,7 @@ const ChameleonGame: React.FC = () => {
           player.y + player.height > item.y + floatY
         ) {
           player.spriteKey = item.spriteKey;
+          tryUnlock('transform');
           createParticles(item.x + 15, item.y + 15, item.color, 25);
           colorItems.splice(i, 1);
           i--;
@@ -1280,6 +1320,10 @@ const ChameleonGame: React.FC = () => {
       gameSpeed = 3.5 + (score / 400); 
       distance += gameSpeed;
 
+      if (score >= 500) tryUnlock('score_500');
+      if (score >= 1000) tryUnlock('score_1000');
+      if (score >= 2000) tryUnlock('score_2000');
+
       const newLevel = Math.floor(score / 1000) % THEMES.length;
       if (newLevel !== currentLevel) {
         currentLevel = newLevel;
@@ -1424,7 +1468,56 @@ const ChameleonGame: React.FC = () => {
           </div> 
           避開障礙物
         </span>
+        <button 
+          onClick={() => setShowAchievements(true)}
+          className="flex items-center gap-1 sm:gap-2 text-indigo-500 font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors"
+        >
+          🏆 成就系統
+        </button>
       </div>
+
+      {/* 成就通知 Popup */}
+      {achievementNotification && (
+        <div className="fixed top-4 right-4 bg-white shadow-xl rounded-xl p-4 flex items-center gap-3 border-l-4 border-emerald-400 animate-in slide-in-from-right-8 z-50">
+          <div className="text-3xl">{achievementNotification.icon}</div>
+          <div>
+            <div className="text-xs text-neutral-400 font-bold">解鎖成就！</div>
+            <div className="font-bold text-emerald-600">{achievementNotification.name}</div>
+          </div>
+        </div>
+      )}
+
+      {/* 成就圖鑑 Modal */}
+      {showAchievements && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white flex justify-between items-center">
+              <h3 className="text-xl font-bold flex items-center gap-2">🏆 遊戲成就</h3>
+              <button onClick={() => setShowAchievements(false)} className="text-white/80 hover:text-white font-bold text-xl">&times;</button>
+            </div>
+            <div className="p-4 overflow-y-auto flex flex-col gap-3">
+              {ACHIEVEMENTS_DATA.map(ach => {
+                const isUnlocked = unlockedAchievements.includes(ach.id);
+                return (
+                  <div key={ach.id} className={`flex items-center gap-4 p-3 rounded-xl border ${isUnlocked ? 'border-emerald-100 bg-emerald-50/50' : 'border-neutral-100 bg-neutral-50 grayscale opacity-60'}`}>
+                    <div className="text-4xl bg-white p-2 rounded-lg shadow-sm w-16 h-16 flex items-center justify-center">
+                      {isUnlocked ? ach.icon : '❓'}
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-bold ${isUnlocked ? 'text-emerald-700' : 'text-neutral-500'}`}>{ach.name}</div>
+                      <div className="text-xs text-neutral-500 mt-1">{ach.desc}</div>
+                    </div>
+                    {isUnlocked && <div className="text-emerald-500 font-bold text-xl">✓</div>}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="p-3 bg-neutral-50 border-t text-center text-sm font-bold text-neutral-400">
+              已解鎖: {unlockedAchievements.length} / {ACHIEVEMENTS_DATA.length}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
