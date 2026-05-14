@@ -705,7 +705,6 @@ const ChameleonGame: React.FC = () => {
     const saved = localStorage.getItem('chameleonAchievements');
     return saved ? JSON.parse(saved) : [];
   });
-  const [achievementNotification, setAchievementNotification] = useState<{name: string, icon: string} | null>(null);
 
   // 重新開始遊戲
   const handleRestart = () => {
@@ -724,6 +723,7 @@ const ChameleonGame: React.FC = () => {
     let animationId: number;
 
     const sessionUnlocked = new Set(unlockedAchievements);
+    let activeAchievements: { name: string, icon: string, life: number }[] = [];
     
     const tryUnlock = (id: string) => {
       if (!sessionUnlocked.has(id)) {
@@ -734,8 +734,7 @@ const ChameleonGame: React.FC = () => {
           localStorage.setItem('chameleonAchievements', JSON.stringify(newArr));
           const ach = ACHIEVEMENTS_DATA.find(a => a.id === id);
           if (ach) {
-            setAchievementNotification({ name: ach.name, icon: ach.icon });
-            setTimeout(() => setAchievementNotification(null), 3000);
+            activeAchievements.push({ name: ach.name, icon: ach.icon, life: 180 });
           }
           return newArr;
         });
@@ -1359,6 +1358,65 @@ const ChameleonGame: React.FC = () => {
       handleCoins(); // 金幣在最上層
       drawScore();
 
+      // 在畫面上方(角色頭頂)繪製成就解鎖提示
+      for (let i = 0; i < activeAchievements.length; i++) {
+        let ach = activeAchievements[i];
+        ach.life--;
+        let alpha = 1;
+        if (ach.life > 160) alpha = (180 - ach.life) / 20;
+        else if (ach.life < 20) alpha = ach.life / 20;
+
+        const floatY = Math.sin((frames + i * 15) * 0.1) * 3;
+        const boxWidth = 140;
+        const boxHeight = 32;
+        const spacing = 36;
+        
+        // 將 X 座標置中於角色上方
+        const boxX = player.x + (player.width / 2) - (boxWidth / 2);
+        
+        // Y 座標：若剛產生則從上方滑入，並疊加
+        const appearOffset = ach.life > 160 ? (ach.life - 160) * 2 : 0;
+        const stackOffset = i * spacing;
+        const boxY = player.y - boxHeight - 20 - stackOffset + floatY + appearOffset;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
+        } else {
+            ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        }
+        ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#34d399';
+        ctx.stroke();
+
+        ctx.font = '16px "Segoe UI Emoji", Arial';
+        ctx.fillStyle = '#000';
+        ctx.fillText(ach.icon, boxX + 10, boxY + 22);
+        
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#059669';
+        ctx.fillText(ach.name, boxX + 35, boxY + 21);
+
+        ctx.restore();
+
+        if (ach.life <= 0) {
+          activeAchievements.splice(i, 1);
+          i--;
+        }
+      }
+
       frames++;
       
       // 難度與場景隨分數增加
@@ -1541,17 +1599,6 @@ const ChameleonGame: React.FC = () => {
           🏆 成就系統
         </button>
       </div>
-
-      {/* 成就通知 Popup */}
-      {achievementNotification && (
-        <div className="fixed top-4 right-4 bg-white shadow-xl rounded-xl p-4 flex items-center gap-3 border-l-4 border-emerald-400 animate-in slide-in-from-right-8 z-50">
-          <div className="text-3xl">{achievementNotification.icon}</div>
-          <div>
-            <div className="text-xs text-neutral-400 font-bold">解鎖成就！</div>
-            <div className="font-bold text-emerald-600">{achievementNotification.name}</div>
-          </div>
-        </div>
-      )}
 
       {/* 成就圖鑑 Modal */}
       {showAchievements && (
