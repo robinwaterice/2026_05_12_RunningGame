@@ -650,43 +650,98 @@ const drawSprite = (
   }
 };
 
+const CHARACTERS_INFO = [
+  { id: 'trex', name: '暴龍', icon: '🦖' },
+  { id: 'dino', name: '變色龍', icon: '🦎' },
+  { id: 'bird', name: '小鳥', icon: '🐦' },
+  { id: 'robot', name: '機器人', icon: '🤖' },
+  { id: 'ninja', name: '忍者', icon: '🥷' },
+  { id: 'alien', name: '外星人', icon: '👽' },
+  { id: 'ghost', name: '幽靈', icon: '👻' }
+];
+
+const CUMULATIVE_ACHIEVEMENTS = [
+  // 累積得分 (5)
+  { id: 'total_score_1w', name: '挑戰起步', desc: '累積總分達到 2,000 分', icon: '🎯' },
+  { id: 'total_score_5w', name: '破萬紀錄', desc: '累積總分達到 10,000 分', icon: '🎖️' },
+  { id: 'total_score_10w', name: '兩萬里程碑', desc: '累積總分達到 20,000 分', icon: '🏆' },
+  { id: 'total_score_20w', name: '四萬傳奇', desc: '累積總分達到 40,000 分', icon: '🌟' },
+  { id: 'total_score_50w', name: '十萬神話', desc: '累積總分達到 100,000 分', icon: '👑' },
+  // 累積金幣 (5)
+  { id: 'total_coins_500', name: '小額存款', desc: '累積收集 100 個金幣', icon: '🏦' },
+  { id: 'total_coins_1000', name: '千金散盡', desc: '累積收集 200 個金幣', icon: '💰' },
+  { id: 'total_coins_5000', name: '財源廣進', desc: '累積收集 1,000 個金幣', icon: '💸' },
+  { id: 'total_coins_10000', name: '萬貫家財', desc: '累積收集 2,000 個金幣', icon: '💎' },
+  { id: 'total_coins_50000', name: '超級富豪', desc: '累積收集 10,000 個金幣', icon: '🏰' },
+  // 累積變身 (5)
+  { id: 'total_transform_50', name: '變身初體驗', desc: '累積變身 10 次', icon: '🎭' },
+  { id: 'total_transform_100', name: '百變星君', desc: '累積變身 20 次', icon: '🦊' },
+  { id: 'total_transform_500', name: '千面人', desc: '累積變身 100 次', icon: '👽' },
+  { id: 'total_transform_1000', name: '變形大師', desc: '累積變身 200 次', icon: '🔮' },
+  { id: 'total_transform_5000', name: '萬化莫測', desc: '累積變身 1,000 次', icon: '🌌' },
+  // 累積跳躍 (5)
+  { id: 'total_jump_500', name: '跳躍練習', desc: '累積跳躍 100 次', icon: '🦘' },
+  { id: 'total_jump_1000', name: '起跳達人', desc: '累積跳躍 200 次', icon: '🤸' },
+  { id: 'total_jump_5000', name: '千次騰空', desc: '累積跳躍 1,000 次', icon: '🧗' },
+  { id: 'total_jump_10000', name: '兩千飛躍', desc: '累積跳躍 2,000 次', icon: '🦅' },
+  { id: 'total_jump_50000', name: '萬次滯空', desc: '累積跳躍 10,000 次', icon: '🚀' },
+].map(a => ({ ...a, category: 'cumulative' as const }));
+
+const CHARACTER_ACHIEVEMENTS = CHARACTERS_INFO.flatMap(char => [
+  { id: `${char.id}_play_1`, name: `${char.name}初體驗`, desc: `使用${char.name}遊玩 1 次`, icon: char.icon },
+  { id: `${char.id}_play_10`, name: `${char.name}熟練者`, desc: `使用${char.name}遊玩 2 次`, icon: char.icon },
+  { id: `${char.id}_play_50`, name: `${char.name}狂熱粉`, desc: `使用${char.name}遊玩 10 次`, icon: char.icon },
+  { id: `${char.id}_score_1000`, name: `${char.name}的實力`, desc: `使用${char.name}單次分數達 1000`, icon: char.icon },
+  { id: `${char.id}_score_5000`, name: `${char.name}的極限`, desc: `使用${char.name}單次分數達 5000`, icon: char.icon },
+  { id: `${char.id}_total_score_1w`, name: `${char.name}的貢獻`, desc: `使用${char.name}總分達 2,000`, icon: char.icon },
+  { id: `${char.id}_coins_50`, name: `${char.name}淘金客`, desc: `使用${char.name}單次收集 50 金幣`, icon: char.icon },
+  { id: `${char.id}_total_coins_500`, name: `${char.name}藏寶庫`, desc: `使用${char.name}累積收集 100 金幣`, icon: char.icon },
+  { id: `${char.id}_jump_50`, name: `${char.name}彈簧腿`, desc: `使用${char.name}單次跳躍 50 次`, icon: char.icon },
+  { id: `${char.id}_total_jump_500`, name: `${char.name}飛行家`, desc: `使用${char.name}累積跳躍 100 次`, icon: char.icon },
+].map(a => ({ ...a, category: 'character' as const, charId: char.id })));
+
 export const ACHIEVEMENTS_DATA = [
-  // 基礎/特殊 (1)
-  { id: 'first_play', name: '初次出擊', desc: '開始第一場跑酷', icon: '🏁' },
-  // 分數系列 (9)
-  { id: 'score_100', name: '暖身運動', desc: '單次分數超過 100 分', icon: '🏃' },
-  { id: 'score_500', name: '跑酷初學者', desc: '單次分數超過 500 分', icon: '🥉' },
-  { id: 'score_1000', name: '跑酷老手', desc: '單次分數超過 1000 分', icon: '🥈' },
-  { id: 'score_2000', name: '跑酷大師', desc: '單次分數超過 2000 分', icon: '🥇' },
-  { id: 'score_3000', name: '漸入佳境', desc: '單次分數超過 3000 分', icon: '🔥' },
-  { id: 'score_4000', name: '超越極限', desc: '單次分數超過 4000 分', icon: '⚡' },
-  { id: 'score_5000', name: '跑酷之王', desc: '單次分數超過 5000 分', icon: '👑' },
-  { id: 'score_7500', name: '無法阻擋', desc: '單次分數超過 7500 分', icon: '🚀' },
-  { id: 'score_10000', name: '傳說降臨', desc: '單次分數超過 10000 分', icon: '🌟' },
-  // 金幣系列 (8)
-  { id: 'coin_1', name: '第一桶金', desc: '單次收集 1 個金幣', icon: '🪙' },
-  { id: 'coin_10', name: '零用錢', desc: '單次收集 10 個金幣', icon: '💰' },
-  { id: 'coin_25', name: '荷包滿滿', desc: '單次收集 25 個金幣', icon: '👛' },
-  { id: 'coin_50', name: '小財主', desc: '單次收集 50 個金幣', icon: '🤑' },
-  { id: 'coin_75', name: '財富自由', desc: '單次收集 75 個金幣', icon: '💸' },
-  { id: 'coin_100', name: '大富翁', desc: '單次收集 100 個金幣', icon: '💎' },
-  { id: 'coin_150', name: '聚寶盆', desc: '單次收集 150 個金幣', icon: '🏺' },
-  { id: 'coin_200', name: '富可敵國', desc: '單次收集 200 個金幣', icon: '🏰' },
-  // 變身系列 (6)
-  { id: 'transform_1', name: '驚喜箱', desc: '單次吃到 1 個變身道具', icon: '🎁' },
-  { id: 'transform_3', name: '變身學徒', desc: '單次吃到 3 個變身道具', icon: '🎭' },
-  { id: 'transform_5', name: '千面人', desc: '單次吃到 5 個變身道具', icon: '👽' },
-  { id: 'transform_10', name: '形體大師', desc: '單次吃到 10 個變身道具', icon: '🔮' },
-  { id: 'transform_15', name: '隨心所欲', desc: '單次吃到 15 個變身道具', icon: '🌀' },
-  { id: 'transform_20', name: '變形金剛', desc: '單次吃到 20 個變身道具', icon: '🤖' },
-  // 跳躍系列 (5)
-  { id: 'jump_5', name: '彈簧腿', desc: '單次跳躍 5 次', icon: '🦘' },
-  { id: 'jump_25', name: '活力四射', desc: '單次跳躍 25 次', icon: '🤸' },
-  { id: 'jump_50', name: '飛簷走壁', desc: '單次跳躍 50 次', icon: '🧗' },
-  { id: 'jump_100', name: '空中飛人', desc: '單次跳躍 100 次', icon: '🎪' },
-  { id: 'jump_150', name: '永不落地', desc: '單次跳躍 150 次', icon: '🦅' },
-  // 速度系列 (1)
-  { id: 'speed_10', name: '突破音障', desc: '遊戲速度達到 10', icon: '🏎️' },
+  ...[
+    // 基礎/特殊 (1)
+    { id: 'first_play', name: '初次出擊', desc: '開始第一場跑酷', icon: '🏁' },
+    // 分數系列 (9)
+    { id: 'score_100', name: '暖身運動', desc: '單次分數超過 100 分', icon: '🏃' },
+    { id: 'score_500', name: '跑酷初學者', desc: '單次分數超過 500 分', icon: '🥉' },
+    { id: 'score_1000', name: '跑酷老手', desc: '單次分數超過 1000 分', icon: '🥈' },
+    { id: 'score_2000', name: '跑酷大師', desc: '單次分數超過 2000 分', icon: '🥇' },
+    { id: 'score_3000', name: '漸入佳境', desc: '單次分數超過 3000 分', icon: '🔥' },
+    { id: 'score_4000', name: '超越極限', desc: '單次分數超過 4000 分', icon: '⚡' },
+    { id: 'score_5000', name: '跑酷之王', desc: '單次分數超過 5000 分', icon: '👑' },
+    { id: 'score_7500', name: '無法阻擋', desc: '單次分數超過 7500 分', icon: '🚀' },
+    { id: 'score_10000', name: '傳說降臨', desc: '單次分數超過 10000 分', icon: '🌟' },
+    // 金幣系列 (8)
+    { id: 'coin_1', name: '第一桶金', desc: '單次收集 1 個金幣', icon: '🪙' },
+    { id: 'coin_10', name: '零用錢', desc: '單次收集 10 個金幣', icon: '💰' },
+    { id: 'coin_25', name: '荷包滿滿', desc: '單次收集 25 個金幣', icon: '👛' },
+    { id: 'coin_50', name: '小財主', desc: '單次收集 50 個金幣', icon: '🤑' },
+    { id: 'coin_75', name: '財富自由', desc: '單次收集 75 個金幣', icon: '💸' },
+    { id: 'coin_100', name: '大富翁', desc: '單次收集 100 個金幣', icon: '💎' },
+    { id: 'coin_150', name: '聚寶盆', desc: '單次收集 150 個金幣', icon: '🏺' },
+    { id: 'coin_200', name: '富可敵國', desc: '單次收集 200 個金幣', icon: '🏰' },
+    // 變身系列 (6)
+    { id: 'transform_1', name: '驚喜箱', desc: '單次吃到 1 個變身道具', icon: '🎁' },
+    { id: 'transform_3', name: '變身學徒', desc: '單次吃到 3 個變身道具', icon: '🎭' },
+    { id: 'transform_5', name: '千面人', desc: '單次吃到 5 個變身道具', icon: '👽' },
+    { id: 'transform_10', name: '形體大師', desc: '單次吃到 10 個變身道具', icon: '🔮' },
+    { id: 'transform_15', name: '隨心所欲', desc: '單次吃到 15 個變身道具', icon: '🌀' },
+    { id: 'transform_20', name: '變形金剛', desc: '單次吃到 20 個變身道具', icon: '🤖' },
+    // 跳躍系列 (5)
+    { id: 'jump_5', name: '彈簧腿', desc: '單次跳躍 5 次', icon: '🦘' },
+    { id: 'jump_25', name: '活力四射', desc: '單次跳躍 25 次', icon: '🤸' },
+    { id: 'jump_50', name: '飛簷走壁', desc: '單次跳躍 50 次', icon: '🧗' },
+    { id: 'jump_100', name: '空中飛人', desc: '單次跳躍 100 次', icon: '🎪' },
+    { id: 'jump_150', name: '永不落地', desc: '單次跳躍 150 次', icon: '🦅' },
+    // 速度系列 (1)
+    { id: 'speed_10', name: '突破音障', desc: '遊戲速度達到 10', icon: '🏎️' },
+  ].map(a => ({ ...a, category: 'single' as const })),
+  // 新增：累積與角色成就
+  ...CUMULATIVE_ACHIEVEMENTS,
+  ...CHARACTER_ACHIEVEMENTS
 ];
 
 const ChameleonGame: React.FC = () => {
@@ -701,6 +756,8 @@ const ChameleonGame: React.FC = () => {
 
   // 成就系統狀態
   const [showAchievements, setShowAchievements] = useState(false);
+  const [achCategory, setAchCategory] = useState<'single' | 'cumulative' | 'character'>('single');
+  const [achCharFilter, setAchCharFilter] = useState('trex');
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>(() => {
     const saved = localStorage.getItem('chameleonAchievements');
     return saved ? JSON.parse(saved) : [];
@@ -725,6 +782,23 @@ const ChameleonGame: React.FC = () => {
     const sessionUnlocked = new Set(unlockedAchievements);
     let activeAchievements: { name: string, icon: string, life: number }[] = [];
     
+    // 初始化累積數據
+    let sessionStats = JSON.parse(localStorage.getItem('chameleonStats') || '{"totalScore":0,"totalCoins":0,"totalTransforms":0,"totalJumps":0,"charStats":{}}');
+    CHARACTERS_INFO.forEach(c => {
+      if (!sessionStats.charStats[c.id]) {
+        sessionStats.charStats[c.id] = { plays: 0, score: 0, coins: 0, jumps: 0 };
+      }
+    });
+
+    let charRunStats: Record<string, { score: number, coins: number, jumps: number }> = {};
+    CHARACTERS_INFO.forEach(c => {
+      charRunStats[c.id] = { score: 0, coins: 0, jumps: 0 };
+    });
+
+    const saveStats = () => {
+      localStorage.setItem('chameleonStats', JSON.stringify(sessionStats));
+    };
+
     const tryUnlock = (id: string) => {
       if (!sessionUnlocked.has(id)) {
         sessionUnlocked.add(id);
@@ -746,6 +820,7 @@ const ChameleonGame: React.FC = () => {
     // --- 遊戲狀態變數 ---
     let frames = 0;
     let score = 0;
+    let prevScore = 0;
     let distance = 0;
     let coinsCollected = 0;
     let transformCount = 0;
@@ -753,6 +828,19 @@ const ChameleonGame: React.FC = () => {
     let gameSpeed = 3.5;
     let gameOverFlag = false;
     let isSpaceDown = false;
+
+    let playedCharsThisSession = new Set<string>();
+    const recordCharPlay = (key: string) => {
+      if (!playedCharsThisSession.has(key)) {
+        playedCharsThisSession.add(key);
+        sessionStats.charStats[key].plays++;
+        const plays = sessionStats.charStats[key].plays;
+        if (plays >= 1) tryUnlock(`${key}_play_1`);
+        if (plays >= 2) tryUnlock(`${key}_play_10`);
+        if (plays >= 10) tryUnlock(`${key}_play_50`);
+        saveStats();
+      }
+    };
 
     let nextObstacleFrame = 120;
     let nextCoinFrame = 90;
@@ -793,7 +881,12 @@ const ChameleonGame: React.FC = () => {
       gravity: 0.8,
       isJumping: false,
       jumpTime: 0,
+    };
 
+    recordCharPlay(player.spriteKey);
+
+    // 擴充 player 物件的方法
+    Object.assign(player, {
       draw() {
         const pSize = 3.2;
         const spriteData = SPRITE_SETS[this.spriteKey];
@@ -1015,7 +1108,7 @@ const ChameleonGame: React.FC = () => {
            this.velocityY -= 0.6; // 在最初幾幀按住時，給予額外向上推力
         }
       }
-    };
+    });
 
     let obstacles: Obstacle[] = [];
     let coins: Coin[] = [];
@@ -1064,7 +1157,8 @@ const ChameleonGame: React.FC = () => {
       const theme = THEMES[currentLevel];
       // 減少生成頻率
       if (frames >= nextObstacleFrame) {
-        const isTall = Math.random() > 0.4;
+        // 舞台 8 後大障礙物機率提升
+        const isTall = Math.random() > (score > 8000 ? 0.3 : 0.4);
         const shapes = OBS_SHAPES[theme.obsKey as keyof typeof OBS_SHAPES];
         const spriteArray = isTall ? shapes.tall : shapes.short;
         const scale = 3.6;
@@ -1072,8 +1166,14 @@ const ChameleonGame: React.FC = () => {
         const width = spriteArray[0].length * scale;
         obstacles.push({ x: canvas.width, y: 350 - height, width, height, spriteArray });
         
-        const currentSpawnRate = Math.max(50, 120 - Math.floor(score / 30));
-        nextObstacleFrame = frames + currentSpawnRate + Math.floor(Math.random() * 80) + (Math.random() > 0.8 ? 60 : 0);
+        // 舞台 8 後基本間隔縮短
+        let currentSpawnRate = Math.max(score > 8000 ? 35 : 50, 120 - Math.floor(score / 30));
+        
+        // 舞台 8 後有機率產生「連擊」障礙物
+        const isDouble = score > 8000 && Math.random() < Math.min(0.4, (score - 8000) / 10000);
+        const interval = isDouble ? (Math.random() * 30 + 30) : (currentSpawnRate + Math.floor(Math.random() * 80));
+        
+        nextObstacleFrame = frames + interval + (Math.random() > 0.8 ? 60 : 0);
       }
 
       for (let i = 0; i < obstacles.length; i++) {
@@ -1099,10 +1199,17 @@ const ChameleonGame: React.FC = () => {
 
     const handleCoins = () => {
       if (frames >= nextCoinFrame) {
-        // 金幣高度降低，有時候出現在地上
+        const coinCount = Math.min(currentLevel + 1, 6) * 3;
         const coinY = 350 - (Math.random() * 120 + 20);
-        coins.push({ x: canvas.width, y: coinY, radius: 12, frameOffset: Math.floor(Math.random() * 10) });
-        nextCoinFrame = frames + 50 + Math.floor(Math.random() * 40);
+        for (let j = 0; j < coinCount; j++) {
+          coins.push({ 
+            x: canvas.width + j * 32, 
+            y: coinY, 
+            radius: 12, 
+            frameOffset: Math.floor(Math.random() * 10) 
+          });
+        }
+        nextCoinFrame = frames + 60 + Math.floor(Math.random() * 40) + (coinCount * 8);
       }
 
       const theme = THEMES[currentLevel];
@@ -1121,6 +1228,10 @@ const ChameleonGame: React.FC = () => {
         const distY = Math.abs(coin.y - (player.y + player.height / 2));
         if (distX < (player.width / 2 + coin.radius) && distY < (player.height / 2 + coin.radius)) {
           coinsCollected++;
+          sessionStats.totalCoins++;
+          sessionStats.charStats[player.spriteKey].coins++;
+          charRunStats[player.spriteKey].coins++;
+
           if (coinsCollected >= 1) tryUnlock('coin_1');
           if (coinsCollected >= 10) tryUnlock('coin_10');
           if (coinsCollected >= 25) tryUnlock('coin_25');
@@ -1129,6 +1240,16 @@ const ChameleonGame: React.FC = () => {
           if (coinsCollected >= 100) tryUnlock('coin_100');
           if (coinsCollected >= 150) tryUnlock('coin_150');
           if (coinsCollected >= 200) tryUnlock('coin_200');
+
+          if (sessionStats.totalCoins >= 100) tryUnlock('total_coins_500');
+          if (sessionStats.totalCoins >= 200) tryUnlock('total_coins_1000');
+          if (sessionStats.totalCoins >= 1000) tryUnlock('total_coins_5000');
+          if (sessionStats.totalCoins >= 2000) tryUnlock('total_coins_10000');
+          if (sessionStats.totalCoins >= 10000) tryUnlock('total_coins_50000');
+
+          if (charRunStats[player.spriteKey].coins >= 50) tryUnlock(`${player.spriteKey}_coins_50`);
+          if (sessionStats.charStats[player.spriteKey].coins >= 100) tryUnlock(`${player.spriteKey}_total_coins_500`);
+
           createParticles(coin.x, coin.y, theme.coinC['1'], 8);
           coins.splice(i, 1);
           i--;
@@ -1170,13 +1291,23 @@ const ChameleonGame: React.FC = () => {
           player.y + player.height > item.y + floatY
         ) {
           player.spriteKey = item.spriteKey;
+          recordCharPlay(item.spriteKey);
           transformCount++;
+          sessionStats.totalTransforms++;
+
           if (transformCount >= 1) tryUnlock('transform_1');
           if (transformCount >= 3) tryUnlock('transform_3');
           if (transformCount >= 5) tryUnlock('transform_5');
           if (transformCount >= 10) tryUnlock('transform_10');
           if (transformCount >= 15) tryUnlock('transform_15');
           if (transformCount >= 20) tryUnlock('transform_20');
+
+          if (sessionStats.totalTransforms >= 10) tryUnlock('total_transform_50');
+          if (sessionStats.totalTransforms >= 20) tryUnlock('total_transform_100');
+          if (sessionStats.totalTransforms >= 100) tryUnlock('total_transform_500');
+          if (sessionStats.totalTransforms >= 200) tryUnlock('total_transform_1000');
+          if (sessionStats.totalTransforms >= 1000) tryUnlock('total_transform_5000');
+
           createParticles(item.x + 15, item.y + 15, item.color, 25);
           colorItems.splice(i, 1);
           i--;
@@ -1418,9 +1549,29 @@ const ChameleonGame: React.FC = () => {
       }
 
       frames++;
+
+      const deltaScore = score - prevScore;
+      if (deltaScore > 0) {
+        sessionStats.totalScore += deltaScore;
+        sessionStats.charStats[player.spriteKey].score += deltaScore;
+        charRunStats[player.spriteKey].score += deltaScore;
+        prevScore = score;
+        
+        if (sessionStats.totalScore >= 2000) tryUnlock('total_score_1w');
+        if (sessionStats.totalScore >= 10000) tryUnlock('total_score_5w');
+        if (sessionStats.totalScore >= 20000) tryUnlock('total_score_10w');
+        if (sessionStats.totalScore >= 40000) tryUnlock('total_score_20w');
+        if (sessionStats.totalScore >= 100000) tryUnlock('total_score_50w');
+        
+        if (sessionStats.charStats[player.spriteKey].score >= 2000) tryUnlock(`${player.spriteKey}_total_score_1w`);
+        if (charRunStats[player.spriteKey].score >= 1000) tryUnlock(`${player.spriteKey}_score_1000`);
+        if (charRunStats[player.spriteKey].score >= 5000) tryUnlock(`${player.spriteKey}_score_5000`);
+      }
       
-      // 難度與場景隨分數增加
-      gameSpeed = 3.5 + (score / 400); 
+      if (frames % 60 === 0) saveStats();
+
+      // 速度隨分數增加，但在舞台 8 (8000分) 左右封頂
+      gameSpeed = 3.5 + (Math.min(score, 8500) / 400); 
       distance += gameSpeed;
 
       if (score >= 100) tryUnlock('score_100');
@@ -1464,6 +1615,7 @@ const ChameleonGame: React.FC = () => {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
+        saveStats();
         setFinalScore(score);
         setIsGameOver(true);
       }
@@ -1473,11 +1625,24 @@ const ChameleonGame: React.FC = () => {
     const checkJumpAchievements = () => {
       if (!player.isJumping) {
         jumpCount++;
+        sessionStats.totalJumps++;
+        sessionStats.charStats[player.spriteKey].jumps++;
+        charRunStats[player.spriteKey].jumps++;
+
         if (jumpCount >= 5) tryUnlock('jump_5');
         if (jumpCount >= 25) tryUnlock('jump_25');
         if (jumpCount >= 50) tryUnlock('jump_50');
         if (jumpCount >= 100) tryUnlock('jump_100');
         if (jumpCount >= 150) tryUnlock('jump_150');
+
+        if (sessionStats.totalJumps >= 500) tryUnlock('total_jump_500');
+        if (sessionStats.totalJumps >= 1000) tryUnlock('total_jump_1000');
+        if (sessionStats.totalJumps >= 5000) tryUnlock('total_jump_5000');
+        if (sessionStats.totalJumps >= 10000) tryUnlock('total_jump_10000');
+        if (sessionStats.totalJumps >= 50000) tryUnlock('total_jump_50000');
+
+        if (charRunStats[player.spriteKey].jumps >= 50) tryUnlock(`${player.spriteKey}_jump_50`);
+        if (sessionStats.charStats[player.spriteKey].jumps >= 100) tryUnlock(`${player.spriteKey}_total_jump_500`);
       }
     };
 
@@ -1608,25 +1773,97 @@ const ChameleonGame: React.FC = () => {
               <h3 className="text-xl font-bold flex items-center gap-2">🏆 遊戲成就</h3>
               <button onClick={() => setShowAchievements(false)} className="text-white/80 hover:text-white font-bold text-xl">&times;</button>
             </div>
-            <div className="p-4 overflow-y-auto flex flex-col gap-3">
-              {ACHIEVEMENTS_DATA.map(ach => {
-                const isUnlocked = unlockedAchievements.includes(ach.id);
-                return (
-                  <div key={ach.id} className={`flex items-center gap-4 p-3 rounded-xl border ${isUnlocked ? 'border-emerald-100 bg-emerald-50/50' : 'border-neutral-100 bg-neutral-50 grayscale opacity-60'}`}>
-                    <div className="text-4xl bg-white p-2 rounded-lg shadow-sm w-16 h-16 flex items-center justify-center">
-                      {isUnlocked ? ach.icon : '❓'}
-                    </div>
-                    <div className="flex-1">
-                      <div className={`font-bold ${isUnlocked ? 'text-emerald-700' : 'text-neutral-500'}`}>{ach.name}</div>
-                      <div className="text-xs text-neutral-500 mt-1">{ach.desc}</div>
-                    </div>
-                    {isUnlocked && <div className="text-emerald-500 font-bold text-xl">✓</div>}
-                  </div>
-                )
-              })}
+            <div className="flex px-4 pt-3 gap-2 border-b border-neutral-100">
+              <button 
+                className={`flex-1 py-2 text-sm font-bold rounded-t-lg transition-colors border-b-2 -mb-[1px] ${achCategory === 'single' ? 'bg-emerald-50 text-emerald-600 border-emerald-500' : 'text-neutral-400 border-transparent hover:bg-neutral-50 hover:text-neutral-600'}`}
+                onClick={() => setAchCategory('single')}
+              >
+                單次成就
+              </button>
+              <button 
+                className={`flex-1 py-2 text-sm font-bold rounded-t-lg transition-colors border-b-2 -mb-[1px] ${achCategory === 'cumulative' ? 'bg-emerald-50 text-emerald-600 border-emerald-500' : 'text-neutral-400 border-transparent hover:bg-neutral-50 hover:text-neutral-600'}`}
+                onClick={() => setAchCategory('cumulative')}
+              >
+                累積成就
+              </button>
+              <button 
+                className={`flex-1 py-2 text-sm font-bold rounded-t-lg transition-colors border-b-2 -mb-[1px] ${achCategory === 'character' ? 'bg-emerald-50 text-emerald-600 border-emerald-500' : 'text-neutral-400 border-transparent hover:bg-neutral-50 hover:text-neutral-600'}`}
+                onClick={() => setAchCategory('character')}
+              >
+                各角色成就
+              </button>
             </div>
-            <div className="p-3 bg-neutral-50 border-t text-center text-sm font-bold text-neutral-400">
-              已解鎖: {unlockedAchievements.length} / {ACHIEVEMENTS_DATA.length}
+            {achCategory === 'character' && (
+              <div className="bg-neutral-50/80 backdrop-blur border-b border-neutral-100 p-3 shrink-0 z-10 flex flex-col items-center gap-2">
+                <div className="flex gap-2">
+                  {CHARACTERS_INFO.slice(0, 4).map(char => (
+                    <button
+                      key={char.id}
+                      onClick={() => setAchCharFilter(char.id)}
+                      className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 w-[4.2rem] h-[4.2rem] sm:w-16 sm:h-16 rounded-xl border transition-all ${achCharFilter === char.id ? 'bg-emerald-50 border-emerald-400 shadow-md ring-2 ring-emerald-100 ring-offset-1 z-10' : 'bg-white border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300'}`}
+                    >
+                      <span className="text-2xl leading-none">{char.icon}</span>
+                      <span className={`text-[10px] sm:text-[11px] font-bold ${achCharFilter === char.id ? 'text-emerald-700' : 'text-neutral-500'}`}>{char.name}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  {CHARACTERS_INFO.slice(4).map(char => (
+                    <button
+                      key={char.id}
+                      onClick={() => setAchCharFilter(char.id)}
+                      className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 w-[4.2rem] h-[4.2rem] sm:w-16 sm:h-16 rounded-xl border transition-all ${achCharFilter === char.id ? 'bg-emerald-50 border-emerald-400 shadow-md ring-2 ring-emerald-100 ring-offset-1 z-10' : 'bg-white border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300'}`}
+                    >
+                      <span className="text-2xl leading-none">{char.icon}</span>
+                      <span className={`text-[10px] sm:text-[11px] font-bold ${achCharFilter === char.id ? 'text-emerald-700' : 'text-neutral-500'}`}>{char.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="p-4 overflow-y-auto flex gap-4 bg-neutral-50/30" style={{ minHeight: '300px' }}>
+              {/* 左側：已完成 */}
+              <div className="flex-1 flex flex-col gap-3">
+                <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-1 px-1">已完成</div>
+                {ACHIEVEMENTS_DATA
+                  .filter(ach => ach.category === achCategory && (achCategory !== 'character' || (ach as any).charId === achCharFilter))
+                  .filter(ach => unlockedAchievements.includes(ach.id))
+                  .map(ach => (
+                    <div key={ach.id} className="flex items-center gap-3 p-3 rounded-xl border border-emerald-200 bg-emerald-50 shadow-sm hover:shadow-md transition-all duration-300">
+                      <div className="text-3xl bg-white p-2 rounded-lg shadow-sm w-12 h-12 flex items-center justify-center shrink-0 border border-neutral-100">
+                        {ach.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold truncate text-sm text-emerald-800">{ach.name}</div>
+                        <div className="text-[10px] text-neutral-500 mt-0.5 line-clamp-1">{ach.desc}</div>
+                      </div>
+                      <div className="text-emerald-500 font-black text-lg shrink-0 px-1 drop-shadow-sm">✓</div>
+                    </div>
+                  ))}
+              </div>
+
+              {/* 右側：未完成 */}
+              <div className="flex-1 flex flex-col gap-3">
+                <div className="text-[10px] font-black text-neutral-400 uppercase tracking-wider mb-1 px-1">未完成</div>
+                {ACHIEVEMENTS_DATA
+                  .filter(ach => ach.category === achCategory && (achCategory !== 'character' || (ach as any).charId === achCharFilter))
+                  .filter(ach => !unlockedAchievements.includes(ach.id))
+                  .map(ach => (
+                    <div key={ach.id} className="flex items-center gap-3 p-3 rounded-xl border border-neutral-100 bg-white grayscale opacity-60 transition-all duration-300">
+                      <div className="text-3xl bg-white p-2 rounded-lg shadow-sm w-12 h-12 flex items-center justify-center shrink-0 border border-neutral-100">
+                        🔒
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold truncate text-sm text-neutral-500">{ach.name}</div>
+                        <div className="text-[10px] text-neutral-500 mt-0.5 line-clamp-1">{ach.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="p-3 bg-white border-t flex justify-between text-xs sm:text-sm font-bold text-neutral-500 px-6">
+              <span>{achCategory === 'single' ? '單次' : achCategory === 'cumulative' ? '累積' : '本角色'}進度: <span className="text-emerald-600">{ACHIEVEMENTS_DATA.filter(a => a.category === achCategory && (achCategory !== 'character' || (a as any).charId === achCharFilter) && unlockedAchievements.includes(a.id)).length} / {ACHIEVEMENTS_DATA.filter(a => a.category === achCategory && (achCategory !== 'character' || (a as any).charId === achCharFilter)).length}</span></span>
+              <span>總計: <span className="text-emerald-600">{unlockedAchievements.length} / {ACHIEVEMENTS_DATA.length}</span></span>
             </div>
           </div>
         </div>
