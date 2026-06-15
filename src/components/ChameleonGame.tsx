@@ -2251,41 +2251,7 @@ const ChameleonGame: React.FC = () => {
               })}
             </div>
             
-            <div className="p-4 bg-white border-t flex justify-between gap-4">
-              <button 
-                onClick={async () => {
-                  if (confirm('確定要重設線上排行榜嗎？這會清除所有高分紀錄。')) {
-                    try {
-                      const querySnapshot = await getDocs(collection(db, 'leaderboard'));
-                      const deletePromises: Promise<void>[] = [];
-                      querySnapshot.forEach((document) => {
-                        deletePromises.push(deleteDoc(doc(db, 'leaderboard', document.id)));
-                      });
-                      await Promise.all(deletePromises);
-                      
-                      const defaultLeaderboard = [
-                        { name: 'ChameleonMaster 🦎', score: 8500, date: '2026-06-12' },
-                        { name: 'RainbowRunner 🌈', score: 6200, date: '2026-06-13' },
-                        { name: 'GoldenDino 🦖', score: 4800, date: '2026-06-14' },
-                        { name: 'SpeedyNinja 🥷', score: 3500, date: '2026-06-14' },
-                        { name: 'GhostJumper 👻', score: 2100, date: '2026-06-15' }
-                      ];
-                      
-                      for (const entry of defaultLeaderboard) {
-                        await addDoc(collection(db, 'leaderboard'), entry);
-                      }
-                      setLeaderboard(defaultLeaderboard);
-                      alert('線上排行榜重設成功！已回復為預設值。');
-                    } catch (err) {
-                      console.error(err);
-                      alert('重設失敗，請確認 Firebase 安全規則設定為測試模式！');
-                    }
-                  }
-                }}
-                className="px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 cursor-pointer"
-              >
-                重設排行榜
-              </button>
+            <div className="p-4 bg-white border-t flex justify-end">
               <button 
                 onClick={() => setShowLeaderboard(false)}
                 className="px-5 py-2 text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg transition-all flex items-center justify-center cursor-pointer"
