@@ -1,0 +1,22 @@
+{
+  "name": "百變跑酷 Pixel Chameleon",
+  "short_name": "百變跑酷",
+  "description": "精緻復古的變色龍跑酷冒險遊戲！",
+  "start_url": "/2026_05_12_RunningGame/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#171717",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

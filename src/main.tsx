@@ -8,3 +8,11 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/2026_05_12_RunningGame/sw.js')
+      .then(reg => console.log('Service Worker registered successfully', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  });
+}

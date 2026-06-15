@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { collection, query, orderBy, limit, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
 import dinoImgSrc from '../images_edited.png';
 
 const dinoImage = new Image();
@@ -746,7 +748,7 @@ export const ACHIEVEMENTS_DATA = [
 
 const ChameleonGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover'>('start');
   const [finalScore, setFinalScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
     const saved = localStorage.getItem('chameleonHighScore');
@@ -763,13 +765,157 @@ const ChameleonGame: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // 排行榜狀態
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<{ name: string; score: number; date: string }[]>(() => {
+    return [
+      { name: 'ChameleonMaster 🦎', score: 8500, date: '2026-06-12' },
+      { name: 'RainbowRunner 🌈', score: 6200, date: '2026-06-13' },
+      { name: 'GoldenDino 🦖', score: 4800, date: '2026-06-14' },
+      { name: 'SpeedyNinja 🥷', score: 3500, date: '2026-06-14' },
+      { name: 'GhostJumper 👻', score: 2100, date: '2026-06-15' }
+    ];
+  });
+  const [leaderboardName, setLeaderboardName] = useState('');
+  const [hasSubmittedScore, setHasSubmittedScore] = useState(false);
+  const [isQualifiedForLeaderboard, setIsQualifiedForLeaderboard] = useState(false);
+
+  // 取得線上排行榜資料
+  const fetchLeaderboard = async () => {
+    try {
+      const q = query(collection(db, 'leaderboard'), orderBy('score', 'desc'), limit(5));
+      const querySnapshot = await getDocs(q);
+      const list: { name: string; score: number; date: string }[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        list.push({
+          name: data.name || 'Anonymous',
+          score: data.score || 0,
+          date: data.date || ''
+        });
+      });
+
+      if (list.length === 0) {
+        // 如果雲端資料庫是空的，自動把預設資料存入雲端
+        const defaultLeaderboard = [
+          { name: 'ChameleonMaster 🦎', score: 8500, date: '2026-06-12' },
+          { name: 'RainbowRunner 🌈', score: 6200, date: '2026-06-13' },
+          { name: 'GoldenDino 🦖', score: 4800, date: '2026-06-14' },
+          { name: 'SpeedyNinja 🥷', score: 3500, date: '2026-06-14' },
+          { name: 'GhostJumper 👻', score: 2100, date: '2026-06-15' }
+        ];
+        
+        for (const entry of defaultLeaderboard) {
+          await addDoc(collection(db, 'leaderboard'), entry);
+        }
+        setLeaderboard(defaultLeaderboard);
+      } else {
+        setLeaderboard(list);
+      }
+    } catch (error) {
+      console.error("Error fetching leaderboard: ", error);
+    }
+  };
+
   // 重新開始遊戲
   const handleRestart = () => {
-    setIsGameOver(false);
+    setGameState('playing');
+    setHasSubmittedScore(false);
+    setIsQualifiedForLeaderboard(false);
+  };
+
+  // 儲存排行榜分數到 Firestore
+  const handleSaveLeaderboard = async () => {
+    if (!leaderboardName.trim()) return;
+    const date = new Date().toISOString().split('T')[0];
+    const newEntry = {
+      name: leaderboardName.trim(),
+      score: finalScore,
+      date
+    };
+    
+    try {
+      await addDoc(collection(db, 'leaderboard'), newEntry);
+      setHasSubmittedScore(true);
+      fetchLeaderboard();
+    } catch (error) {
+      console.error("Error saving leaderboard entry: ", error);
+      alert('無法提交分數到雲端資料庫，請檢查您的網路或 Firebase 安全規則設置！');
+    }
+  };
+
+  // 當畫面上線或開啟排行榜時，更新雲端資料
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+  useEffect(() => {
+    if (showLeaderboard) {
+      fetchLeaderboard();
+    }
+  }, [showLeaderboard]);
+
+  // 全螢幕與 PWA 狀態
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showiOSInstallGuide, setShowiOSInstallGuide] = useState(false);
+  
+  // 檢查是否為 iOS 裝置
+  const isiOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  };
+
+  // 全螢幕切換邏輯
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      const element = document.documentElement; // 整個頁面進入全螢幕
+      if (element.requestFullscreen) {
+        element.requestFullscreen().then(() => setIsFullscreen(true)).catch(err => console.error(err));
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().then(() => setIsFullscreen(false)).catch(err => console.error(err));
+      }
+    }
+  };
+
+  // 觸發安裝 APP
+  const handleInstallApp = async () => {
+    if (isiOS()) {
+      setShowiOSInstallGuide(true);
+      return;
+    }
+    if (!deferredPrompt) {
+      alert('請直接透過瀏覽器選單點擊「加到主畫面」進行安裝，或使用 Chrome/Edge 瀏覽器開啟以啟用一鍵下載！');
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to install prompt: ${outcome}`);
+    setDeferredPrompt(null);
   };
 
   useEffect(() => {
-    if (isGameOver) return;
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (gameState === 'gameover') return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -815,7 +961,9 @@ const ChameleonGame: React.FC = () => {
       }
     };
     
-    tryUnlock('first_play');
+    if (gameState === 'playing') {
+      tryUnlock('first_play');
+    }
 
     // --- 遊戲狀態變數 ---
     let frames = 0;
@@ -883,7 +1031,9 @@ const ChameleonGame: React.FC = () => {
       jumpTime: 0,
     };
 
-    recordCharPlay(player.spriteKey);
+    if (gameState === 'playing') {
+      recordCharPlay(player.spriteKey);
+    }
 
     // 擴充 player 物件的方法
     Object.assign(player, {
@@ -1368,7 +1518,7 @@ const ChameleonGame: React.FC = () => {
       // 背景裝飾
       if (theme.bgObj === 'star') {
         for (let i = 0; i < 30; i++) {
-          const starX = (i * 70 - frames * 0.2) % canvas.width;
+          const starX = (i * 70 - distance * 0.05) % canvas.width;
           const sx = starX < 0 ? canvas.width + starX : starX;
           const starY = (i * 87) % 250;
           ctx.fillStyle = (frames + i * 10) % 60 < 30 ? 'white' : 'rgba(255,255,255,0.2)';
@@ -1376,7 +1526,7 @@ const ChameleonGame: React.FC = () => {
         }
       } else if (theme.bgObj === 'snow') {
         for (let i = 0; i < 40; i++) {
-          const snowX = (i * 40 - frames * 1.5) % canvas.width;
+          const snowX = (i * 40 - distance * 0.4) % canvas.width;
           const sx = snowX < 0 ? canvas.width + snowX : snowX;
           const snowY = (i * 50 + frames * 2) % 350;
           ctx.fillStyle = 'rgba(255,255,255,0.8)';
@@ -1407,14 +1557,34 @@ const ChameleonGame: React.FC = () => {
         });
       }
 
-      // 遠景山脈 (簡單色塊多邊形)
+      // 遠景山脈 1 (更遠、滾動較慢、半透明)
+      ctx.fillStyle = theme.mountain + '55';
+      ctx.beginPath();
+      const step1 = 60;
+      const distScroll = distance * 0.08;
+      const startX1 = - (distScroll % step1);
+      ctx.moveTo(startX1, 350);
+      for (let x = startX1; x <= canvas.width + step1; x += step1) {
+        const worldX = x + distScroll;
+        const h = 350 - 30 - Math.sin(worldX * 0.003) * 20 - Math.cos(worldX * 0.008) * 10;
+        ctx.lineTo(x, h);
+      }
+      ctx.lineTo(canvas.width + step1, 350);
+      ctx.fill();
+
+      // 遠景山脈 2 (較近、滾動較快、不透明)
       ctx.fillStyle = theme.mountain;
       ctx.beginPath();
-      ctx.moveTo(0, 350);
-      for(let i=0; i<canvas.width + 100; i+=100) {
-        ctx.lineTo(i - ((frames * gameSpeed * 0.2) % 100), 350 - 50 - Math.sin(i*0.05)*30);
+      const step2 = 40;
+      const nearScroll = distance * 0.18;
+      const startX2 = - (nearScroll % step2);
+      ctx.moveTo(startX2, 350);
+      for (let x = startX2; x <= canvas.width + step2; x += step2) {
+        const worldX = x + nearScroll;
+        const h = 350 - 55 - Math.sin(worldX * 0.005) * 35 - Math.cos(worldX * 0.012) * 15;
+        ctx.lineTo(x, h);
       }
-      ctx.lineTo(canvas.width, 350);
+      ctx.lineTo(canvas.width + step2, 350);
       ctx.fill();
 
       // 地板主體
@@ -1425,12 +1595,12 @@ const ChameleonGame: React.FC = () => {
       ctx.fillStyle = theme.groundTop;
       ctx.fillRect(0, 350, canvas.width, 10);
       
-      // 地板斑點(速度感)
+      // 地板斑點(速度感) - 使用 distance 連貫滾動以消除速度變更時的抖動
       for (let i = 0; i < canvas.width + 40; i += 40) {
         ctx.fillStyle = theme.groundSpot[0];
-        ctx.fillRect(i - ((frames * gameSpeed) % 40), 365, 8, 8);
+        ctx.fillRect(i - (distance % 40), 365, 8, 8);
         ctx.fillStyle = theme.groundSpot[1];
-        ctx.fillRect(i + 20 - ((frames * gameSpeed) % 40), 380, 12, 6);
+        ctx.fillRect(i + 20 - (distance % 40), 380, 12, 6);
       }
     };
 
@@ -1477,17 +1647,20 @@ const ChameleonGame: React.FC = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (isSpaceDown) {
+      if (isSpaceDown && gameState === 'playing') {
         player.holdJump();
       }
 
       drawEnvironment();
       updateParticles();
       player.update();
-      handleObstacles();
-      handleColorItems();
-      handleCoins(); // 金幣在最上層
-      drawScore();
+      
+      if (gameState === 'playing') {
+        handleObstacles();
+        handleColorItems();
+        handleCoins(); // 金幣在最上層
+        drawScore();
+      }
 
       // 在畫面上方(角色頭頂)繪製成就解鎖提示
       for (let i = 0; i < activeAchievements.length; i++) {
@@ -1548,58 +1721,63 @@ const ChameleonGame: React.FC = () => {
         }
       }
 
-      frames++;
+      if (gameState === 'playing') {
+        frames++;
 
-      const deltaScore = score - prevScore;
-      if (deltaScore > 0) {
-        sessionStats.totalScore += deltaScore;
-        sessionStats.charStats[player.spriteKey].score += deltaScore;
-        charRunStats[player.spriteKey].score += deltaScore;
-        prevScore = score;
+        const deltaScore = score - prevScore;
+        if (deltaScore > 0) {
+          sessionStats.totalScore += deltaScore;
+          sessionStats.charStats[player.spriteKey].score += deltaScore;
+          charRunStats[player.spriteKey].score += deltaScore;
+          prevScore = score;
+          
+          if (sessionStats.totalScore >= 2000) tryUnlock('total_score_1w');
+          if (sessionStats.totalScore >= 10000) tryUnlock('total_score_5w');
+          if (sessionStats.totalScore >= 20000) tryUnlock('total_score_10w');
+          if (sessionStats.totalScore >= 40000) tryUnlock('total_score_20w');
+          if (sessionStats.totalScore >= 100000) tryUnlock('total_score_50w');
+          
+          if (sessionStats.charStats[player.spriteKey].score >= 2000) tryUnlock(`${player.spriteKey}_total_score_1w`);
+          if (charRunStats[player.spriteKey].score >= 1000) tryUnlock(`${player.spriteKey}_score_1000`);
+          if (charRunStats[player.spriteKey].score >= 5000) tryUnlock(`${player.spriteKey}_score_5000`);
+        }
         
-        if (sessionStats.totalScore >= 2000) tryUnlock('total_score_1w');
-        if (sessionStats.totalScore >= 10000) tryUnlock('total_score_5w');
-        if (sessionStats.totalScore >= 20000) tryUnlock('total_score_10w');
-        if (sessionStats.totalScore >= 40000) tryUnlock('total_score_20w');
-        if (sessionStats.totalScore >= 100000) tryUnlock('total_score_50w');
+        if (frames % 60 === 0) saveStats();
+
+        // 速度隨分數增加，但在舞台 8 (8000分) 左右封頂
+        gameSpeed = 3.5 + (Math.min(score, 8500) / 400); 
+        distance += gameSpeed;
+
+        if (score >= 100) tryUnlock('score_100');
+        if (score >= 500) tryUnlock('score_500');
+        if (score >= 1000) tryUnlock('score_1000');
+        if (score >= 2000) tryUnlock('score_2000');
+        if (score >= 3000) tryUnlock('score_3000');
+        if (score >= 4000) tryUnlock('score_4000');
+        if (score >= 5000) tryUnlock('score_5000');
+        if (score >= 7500) tryUnlock('score_7500');
+        if (score >= 10000) tryUnlock('score_10000');
         
-        if (sessionStats.charStats[player.spriteKey].score >= 2000) tryUnlock(`${player.spriteKey}_total_score_1w`);
-        if (charRunStats[player.spriteKey].score >= 1000) tryUnlock(`${player.spriteKey}_score_1000`);
-        if (charRunStats[player.spriteKey].score >= 5000) tryUnlock(`${player.spriteKey}_score_5000`);
-      }
-      
-      if (frames % 60 === 0) saveStats();
+        if (gameSpeed >= 10) tryUnlock('speed_10');
 
-      // 速度隨分數增加，但在舞台 8 (8000分) 左右封頂
-      gameSpeed = 3.5 + (Math.min(score, 8500) / 400); 
-      distance += gameSpeed;
+        const newLevel = Math.floor(score / 1000) % THEMES.length;
+        if (newLevel !== currentLevel) {
+          currentLevel = newLevel;
+          levelTransitionFrames = 120; // 顯示兩秒升級提示
+        }
 
-      if (score >= 100) tryUnlock('score_100');
-      if (score >= 500) tryUnlock('score_500');
-      if (score >= 1000) tryUnlock('score_1000');
-      if (score >= 2000) tryUnlock('score_2000');
-      if (score >= 3000) tryUnlock('score_3000');
-      if (score >= 4000) tryUnlock('score_4000');
-      if (score >= 5000) tryUnlock('score_5000');
-      if (score >= 7500) tryUnlock('score_7500');
-      if (score >= 10000) tryUnlock('score_10000');
-      
-      if (gameSpeed >= 10) tryUnlock('speed_10');
-
-      const newLevel = Math.floor(score / 1000) % THEMES.length;
-      if (newLevel !== currentLevel) {
-        currentLevel = newLevel;
-        levelTransitionFrames = 120; // 顯示兩秒升級提示
-      }
-
-      if (levelTransitionFrames > 0) {
-         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, levelTransitionFrames / 30)})`;
-         ctx.font = "bold 40px monospace";
-         ctx.textAlign = "center";
-         const levelNames = ["草原", "沙漠", "霓虹之夜", "冰雪仙境"];
-         ctx.fillText(`STAGE ${Math.floor(score / 1000) + 1}: ${levelNames[currentLevel]}`, canvas.width / 2, canvas.height / 3);
-         ctx.textAlign = "left";
-         levelTransitionFrames--;
+        if (levelTransitionFrames > 0) {
+           ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, levelTransitionFrames / 30)})`;
+           ctx.font = "bold 40px monospace";
+           ctx.textAlign = "center";
+           const levelNames = ["草原", "沙漠", "霓虹之夜", "冰雪仙境"];
+           ctx.fillText(`STAGE ${Math.floor(score / 1000) + 1}: ${levelNames[currentLevel]}`, canvas.width / 2, canvas.height / 3);
+           ctx.textAlign = "left";
+           levelTransitionFrames--;
+        }
+      } else {
+        frames++;
+        gameSpeed = 3.5;
       }
 
       if (!gameOverFlag) {
@@ -1617,7 +1795,14 @@ const ChameleonGame: React.FC = () => {
         
         saveStats();
         setFinalScore(score);
-        setIsGameOver(true);
+
+        // check leaderboard qualification
+        const qualified = leaderboard.length < 5 || score > leaderboard[leaderboard.length - 1].score;
+        setIsQualifiedForLeaderboard(qualified);
+        setHasSubmittedScore(false);
+        setLeaderboardName('');
+
+        setGameState('gameover');
       }
     };
 
@@ -1647,6 +1832,7 @@ const ChameleonGame: React.FC = () => {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameState !== 'playing') return;
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         if (!e.repeat) {
            e.preventDefault();
@@ -1658,12 +1844,14 @@ const ChameleonGame: React.FC = () => {
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (gameState !== 'playing') return;
       if (e.code === 'Space' || e.code === 'ArrowUp') {
            isSpaceDown = false;
       }
     };
 
     const handlePointerDown = (e: Event) => {
+      if (gameState !== 'playing') return;
       e.preventDefault();
       isSpaceDown = true;
       checkJumpAchievements();
@@ -1694,7 +1882,7 @@ const ChameleonGame: React.FC = () => {
       canvas.removeEventListener('touchend', handlePointerUp as EventListener);
       cancelAnimationFrame(animationId);
     };
-  }, [isGameOver]);
+  }, [gameState]);
 
   return (
     <div className="flex flex-col items-center justify-center font-mono w-full px-2 sm:px-4">
@@ -1717,24 +1905,126 @@ const ChameleonGame: React.FC = () => {
           className="relative max-w-full w-full h-auto bg-white shadow-2xl rounded-xl ring-1 ring-black/5 [image-rendering:pixelated] cursor-pointer touch-none"
           style={{ aspectRatio: '2 / 1' }}
         />
+
+        {/* 懸浮全螢幕切換按鈕 */}
+        <button 
+          onClick={toggleFullscreen}
+          className="absolute top-4 right-4 z-30 bg-black/60 hover:bg-black/80 backdrop-blur border border-white/15 text-white p-2 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center shadow-lg"
+          title={isFullscreen ? "退出全螢幕" : "進入全螢幕"}
+        >
+          {isFullscreen ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9L3 3M9 9H3M9 9V3M15 9l6-6M15 9h6M15 9V3M9 15l-6 6M9 15H3M9 15v6M15 15l6 6M15 15h6M15 15v6" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 20.25v-4.5m0 4.5h-4.5m4.5 0L15 15" />
+            </svg>
+          )}
+        </button>
         
-        {isGameOver && (
-          <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm flex flex-col justify-center items-center text-white rounded-xl z-20 animate-in fade-in duration-300">
+        {gameState === 'start' && (
+          <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-[2px] flex flex-col justify-center items-center text-white rounded-xl z-20 animate-in fade-in duration-300">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-wider mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] animate-pulse">
+              PIXEL CHAMELEON
+            </h1>
+            <p className="text-neutral-300 font-bold text-sm sm:text-base mb-6 tracking-wide drop-shadow">
+              個人最高紀錄: <span className="text-yellow-400">{highScore} 分</span>
+            </p>
+
+            <div className="flex flex-col gap-3 w-full max-w-[280px]">
+              <button 
+                onClick={handleRestart}
+                className="group relative px-8 py-3 text-lg font-black bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 active:translate-y-[2px] transition-all transform duration-150 overflow-hidden cursor-pointer"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  🎮 開始遊戲
+                </span>
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-0 bg-white/10 transition-transform duration-300"></div>
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => setShowLeaderboard(true)}
+                  className="px-4 py-2.5 text-sm font-bold bg-neutral-800/90 hover:bg-neutral-700/95 border border-white/10 text-yellow-400 hover:text-yellow-300 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:translate-y-[1px] cursor-pointer"
+                >
+                  🏆 排行榜
+                </button>
+                <button 
+                  onClick={() => setShowAchievements(true)}
+                  className="px-4 py-2.5 text-sm font-bold bg-neutral-800/90 hover:bg-neutral-700/95 border border-white/10 text-cyan-400 hover:text-cyan-300 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:translate-y-[1px] cursor-pointer"
+                >
+                  🎖️ 成就
+                </button>
+              </div>
+
+              {/* 下載安裝遊戲 APP */}
+              <button 
+                onClick={handleInstallApp}
+                className="px-4 py-2.5 text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 border border-white/10 text-white rounded-xl shadow-md transition-all active:translate-y-[1px] cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                📲 下載安裝遊戲 APP
+              </button>
+            </div>
+          </div>
+        )}
+
+        {gameState === 'gameover' && (
+          <div className="absolute inset-0 bg-neutral-900/85 backdrop-blur-sm flex flex-col justify-center items-center text-white rounded-xl z-20 animate-in fade-in duration-300">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-rose-500 tracking-widest mb-2 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
               GAME OVER
             </h1>
-            <div className="bg-white/10 px-4 sm:px-6 py-2 sm:py-3 rounded-lg border border-white/20 mb-6 sm:mb-8 backdrop-blur-md">
-              <h3 className="text-xl sm:text-2xl font-bold text-center">最終分數: <span className="text-yellow-400">{finalScore}</span></h3>
+            
+            <div className="bg-white/10 px-6 py-3 rounded-xl border border-white/20 mb-6 backdrop-blur-md text-center max-w-[340px] w-full">
+              <h3 className="text-lg sm:text-xl font-bold">最終分數: <span className="text-yellow-400">{finalScore}</span></h3>
               {finalScore >= highScore && finalScore > 0 && (
-                 <p className="text-emerald-400 font-bold text-center mt-1 sm:mt-2 animate-pulse text-sm sm:text-base">NEW HIGH SCORE!</p>
+                 <p className="text-emerald-400 font-bold text-xs mt-1 animate-pulse">NEW HIGH SCORE!</p>
+              )}
+
+              {isQualifiedForLeaderboard && !hasSubmittedScore && (
+                <div className="mt-4 pt-3 border-t border-white/10 flex flex-col items-center">
+                  <p className="text-[11px] text-yellow-300 font-bold mb-2 flex items-center gap-1 animate-bounce">
+                    🎉 恭喜！你的分數有資格登上排行榜！
+                  </p>
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="text" 
+                      placeholder="輸入你的名字" 
+                      value={leaderboardName} 
+                      onChange={(e) => setLeaderboardName(e.target.value.slice(0, 10))} 
+                      className="flex-1 bg-black/40 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 text-center font-bold"
+                    />
+                    <button 
+                      onClick={handleSaveLeaderboard}
+                      className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center shadow cursor-pointer"
+                    >
+                      提交
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isQualifiedForLeaderboard && hasSubmittedScore && (
+                <p className="text-xs text-emerald-400 font-bold mt-3 animate-fade-in flex items-center justify-center gap-1">
+                  ✓ 分數提交成功！
+                </p>
               )}
             </div>
-            <button 
-              onClick={handleRestart}
-              className="px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg font-bold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white rounded-full shadow-[0_4px_0_rgb(4,120,87)] active:shadow-none active:translate-y-[4px] transition-all"
-            >
-              再玩一次
-            </button>
+            
+            <div className="flex gap-4">
+              <button 
+                onClick={handleRestart}
+                className="px-6 py-2.5 sm:px-8 sm:py-3 text-sm sm:text-base font-bold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white rounded-full shadow-[0_4px_0_rgb(4,120,87)] active:shadow-none active:translate-y-[4px] transition-all cursor-pointer"
+              >
+                再玩一次
+              </button>
+              <button 
+                onClick={() => setGameState('start')}
+                className="px-6 py-2.5 sm:px-8 sm:py-3 text-sm sm:text-base font-bold bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-800 text-white rounded-full shadow-[0_4px_0_rgb(64,64,64)] active:shadow-none active:translate-y-[4px] transition-all cursor-pointer"
+              >
+                返回主畫面
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -1864,6 +2154,149 @@ const ChameleonGame: React.FC = () => {
             <div className="p-3 bg-white border-t flex justify-between text-xs sm:text-sm font-bold text-neutral-500 px-6">
               <span>{achCategory === 'single' ? '單次' : achCategory === 'cumulative' ? '累積' : '本角色'}進度: <span className="text-emerald-600">{ACHIEVEMENTS_DATA.filter(a => a.category === achCategory && (achCategory !== 'character' || (a as any).charId === achCharFilter) && unlockedAchievements.includes(a.id)).length} / {ACHIEVEMENTS_DATA.filter(a => a.category === achCategory && (achCategory !== 'character' || (a as any).charId === achCharFilter)).length}</span></span>
               <span>總計: <span className="text-emerald-600">{unlockedAchievements.length} / {ACHIEVEMENTS_DATA.length}</span></span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 排行榜 Modal */}
+      {showLeaderboard && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 p-4 text-white flex justify-between items-center">
+              <h3 className="text-xl font-bold flex items-center gap-2">🏆 殿堂排行榜</h3>
+              <button onClick={() => setShowLeaderboard(false)} className="text-white/80 hover:text-white font-bold text-xl cursor-pointer">&times;</button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex flex-col gap-3 bg-neutral-50/50">
+              {leaderboard.map((entry, idx) => {
+                const rankColors = [
+                  'bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 text-amber-700 shadow-sm', // 1st
+                  'bg-gradient-to-r from-slate-50 to-neutral-100 border-slate-300 text-slate-700 shadow-sm', // 2nd
+                  'bg-gradient-to-r from-orange-50 to-amber-100 border-orange-200 text-orange-800 shadow-sm', // 3rd
+                  'bg-white border-neutral-200 text-neutral-600', // 4th
+                  'bg-white border-neutral-200 text-neutral-600'  // 5th
+                ];
+                
+                const rankBadges = ['🥇', '🥈', '🥉', '4', '5'];
+                const rankLabel = rankBadges[idx] || (idx + 1).toString();
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 ${rankColors[idx] || 'bg-white border-neutral-100'}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${idx < 3 ? 'bg-white shadow-inner border border-neutral-100/50' : 'bg-neutral-100 text-neutral-400'}`}>
+                        {rankLabel}
+                      </div>
+                      <div className="font-black text-sm tracking-wide">
+                        {entry.name}
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="font-extrabold text-base tracking-wider text-neutral-800">
+                        {entry.score} <span className="text-[10px] text-neutral-400 font-bold">分</span>
+                      </div>
+                      <div className="text-[9px] text-neutral-400 font-bold mt-0.5">
+                        {entry.date}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="p-4 bg-white border-t flex justify-between gap-4">
+              <button 
+                onClick={async () => {
+                  if (confirm('確定要重設線上排行榜嗎？這會清除所有高分紀錄。')) {
+                    try {
+                      const querySnapshot = await getDocs(collection(db, 'leaderboard'));
+                      const deletePromises: Promise<void>[] = [];
+                      querySnapshot.forEach((document) => {
+                        deletePromises.push(deleteDoc(doc(db, 'leaderboard', document.id)));
+                      });
+                      await Promise.all(deletePromises);
+                      
+                      const defaultLeaderboard = [
+                        { name: 'ChameleonMaster 🦎', score: 8500, date: '2026-06-12' },
+                        { name: 'RainbowRunner 🌈', score: 6200, date: '2026-06-13' },
+                        { name: 'GoldenDino 🦖', score: 4800, date: '2026-06-14' },
+                        { name: 'SpeedyNinja 🥷', score: 3500, date: '2026-06-14' },
+                        { name: 'GhostJumper 👻', score: 2100, date: '2026-06-15' }
+                      ];
+                      
+                      for (const entry of defaultLeaderboard) {
+                        await addDoc(collection(db, 'leaderboard'), entry);
+                      }
+                      setLeaderboard(defaultLeaderboard);
+                      alert('線上排行榜重設成功！已回復為預設值。');
+                    } catch (err) {
+                      console.error(err);
+                      alert('重設失敗，請確認 Firebase 安全規則設定為測試模式！');
+                    }
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 cursor-pointer"
+              >
+                重設排行榜
+              </button>
+              <button 
+                onClick={() => setShowLeaderboard(false)}
+                className="px-5 py-2 text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg transition-all flex items-center justify-center cursor-pointer"
+              >
+                關閉
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* iOS 安裝教學 Modal */}
+      {showiOSInstallGuide && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col">
+            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 flex justify-between items-center">
+              <h3 className="text-base font-black flex items-center gap-2">📲 安裝遊戲到 iPhone / iPad</h3>
+              <button onClick={() => setShowiOSInstallGuide(false)} className="text-white/80 hover:text-white font-bold text-xl cursor-pointer">&times;</button>
+            </div>
+            
+            <div className="p-5 flex flex-col gap-4 text-sm leading-relaxed text-neutral-300">
+              <p className="text-xs text-neutral-400 font-bold mb-1">
+                由於 iOS Safari 系統限制，無法一鍵下載，請依照以下步驟加到您的主畫面：
+              </p>
+              
+              <div className="flex gap-3 items-start bg-neutral-800/40 p-3 rounded-xl border border-white/5">
+                <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-extrabold text-xs flex items-center justify-center shrink-0 border border-indigo-500/30">1</span>
+                <div>
+                  點選 Safari 瀏覽器底部的 <strong className="text-white">「分享」</strong> 按鈕（向上箭頭與方框圖示 <span className="inline-block bg-neutral-850 p-1 rounded">⎋</span>）。
+                </div>
+              </div>
+
+              <div className="flex gap-3 items-start bg-neutral-800/40 p-3 rounded-xl border border-white/5">
+                <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-extrabold text-xs flex items-center justify-center shrink-0 border border-indigo-500/30">2</span>
+                <div>
+                  向上滑動選單，點選 <strong className="text-white">「加入主畫面」</strong>（Add to Home Screen）。
+                </div>
+              </div>
+
+              <div className="flex gap-3 items-start bg-neutral-800/40 p-3 rounded-xl border border-white/5">
+                <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-extrabold text-xs flex items-center justify-center shrink-0 border border-indigo-500/30">3</span>
+                <div>
+                  按右上角的 <strong className="text-white">「新增」</strong>。回到手機主畫面，即可像原生 APP 一樣享受全螢幕、無邊框遊戲體驗！
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-neutral-900 border-t border-neutral-800/80 flex justify-end">
+              <button 
+                onClick={() => setShowiOSInstallGuide(false)}
+                className="px-5 py-2 text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg transition-all cursor-pointer"
+              >
+                我知道了
+              </button>
             </div>
           </div>
         </div>
