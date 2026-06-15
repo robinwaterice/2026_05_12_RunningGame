@@ -2194,7 +2194,7 @@ const ChameleonGame: React.FC = () => {
                 </div>
               </div>
             )}
-            <div className="p-4 overflow-y-auto flex gap-4 bg-neutral-50/30" style={{ minHeight: '300px' }}>
+            <div className="p-4 overflow-y-auto flex flex-col sm:flex-row gap-4 bg-neutral-50/30" style={{ minHeight: '300px' }}>
               {/* 左側：已完成 */}
               <div className="flex-1 flex flex-col gap-3">
                 <div className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-1 px-1">已完成</div>
