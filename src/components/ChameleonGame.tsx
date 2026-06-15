@@ -748,6 +748,7 @@ export const ACHIEVEMENTS_DATA = [
 
 const ChameleonGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover'>('start');
   const [finalScore, setFinalScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
@@ -817,6 +818,40 @@ const ChameleonGame: React.FC = () => {
     }
   };
 
+  // 全螢幕輔助函式
+  const getFullscreenElement = () => {
+    return document.fullscreenElement || 
+           (document as any).webkitFullscreenElement || 
+           (document as any).mozFullScreenElement || 
+           (document as any).msFullscreenElement;
+  };
+
+  const requestFullscreenHelper = (el: HTMLElement) => {
+    if (el.requestFullscreen) {
+      return el.requestFullscreen();
+    } else if ((el as any).webkitRequestFullscreen) {
+      return (el as any).webkitRequestFullscreen();
+    } else if ((el as any).mozRequestFullScreen) {
+      return (el as any).mozRequestFullScreen();
+    } else if ((el as any).msRequestFullscreen) {
+      return (el as any).msRequestFullscreen();
+    }
+    return Promise.reject('Fullscreen API not supported');
+  };
+
+  const exitFullscreenHelper = () => {
+    if (document.exitFullscreen) {
+      return document.exitFullscreen();
+    } else if ((document as any).webkitExitFullscreen) {
+      return (document as any).webkitExitFullscreen();
+    } else if ((document as any).mozCancelFullScreen) {
+      return (document as any).mozCancelFullScreen();
+    } else if ((document as any).msExitFullscreen) {
+      return (document as any).msExitFullscreen();
+    }
+    return Promise.reject('Fullscreen API not supported');
+  };
+
   // 重新開始遊戲
   const handleRestart = () => {
     setGameState('playing');
@@ -825,9 +860,9 @@ const ChameleonGame: React.FC = () => {
 
     // 行動裝置點擊開始時，自動嘗試進入全螢幕並鎖定橫屏
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      const element = document.documentElement;
-      if (element.requestFullscreen && !document.fullscreenElement) {
-        element.requestFullscreen()
+      const element = containerRef.current;
+      if (element && !getFullscreenElement()) {
+        requestFullscreenHelper(element)
           .then(() => {
             setIsFullscreen(true);
             if (screen.orientation && (screen.orientation as any).lock) {
@@ -882,10 +917,11 @@ const ChameleonGame: React.FC = () => {
 
   // 全螢幕切換邏輯
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      const element = document.documentElement; // 整個頁面進入全螢幕
-      if (element.requestFullscreen) {
-        element.requestFullscreen()
+    const fsElement = getFullscreenElement();
+    if (!fsElement) {
+      const element = containerRef.current;
+      if (element) {
+        requestFullscreenHelper(element)
           .then(() => {
             setIsFullscreen(true);
             // 嘗試鎖定橫屏
@@ -896,17 +932,15 @@ const ChameleonGame: React.FC = () => {
           .catch(err => console.error(err));
       }
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-          .then(() => {
-            setIsFullscreen(false);
-            // 退出時解鎖橫屏
-            if (screen.orientation && (screen.orientation as any).unlock) {
-              (screen.orientation as any).unlock();
-            }
-          })
-          .catch(err => console.error(err));
-      }
+      exitFullscreenHelper()
+        .then(() => {
+          setIsFullscreen(false);
+          // 退出時解鎖橫屏
+          if (screen.orientation && (screen.orientation as any).unlock) {
+            (screen.orientation as any).unlock();
+          }
+        })
+        .catch(err => console.error(err));
     }
   };
 
@@ -928,7 +962,7 @@ const ChameleonGame: React.FC = () => {
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!getFullscreenElement());
     };
 
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -937,10 +971,16 @@ const ChameleonGame: React.FC = () => {
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
@@ -1939,7 +1979,7 @@ const ChameleonGame: React.FC = () => {
         </div>
       </div>
       
-      <div className="relative group w-full max-w-[800px]">
+      <div ref={containerRef} className="relative group w-full max-w-[800px] game-container">
         <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 pointer-events-none"></div>
         <canvas 
           ref={canvasRef} 

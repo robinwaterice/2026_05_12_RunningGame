@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+/* Fullscreen styles for the game container */
+.game-container:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #0a0a0a !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.game-container:fullscreen canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Support WebKit fullscreen pseudo-classes for iOS / Safari / Chrome on iOS */
+.game-container:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #0a0a0a !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.game-container:-webkit-full-screen canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Make overlays flat (no border-radius) in fullscreen mode */
+.game-container:fullscreen .rounded-xl,
+.game-container:-webkit-full-screen .rounded-xl {
+  border-radius: 0px !important;
+}
