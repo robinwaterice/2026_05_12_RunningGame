@@ -822,6 +822,21 @@ const ChameleonGame: React.FC = () => {
     setGameState('playing');
     setHasSubmittedScore(false);
     setIsQualifiedForLeaderboard(false);
+
+    // 行動裝置點擊開始時，自動嘗試進入全螢幕並鎖定橫屏
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      const element = document.documentElement;
+      if (element.requestFullscreen && !document.fullscreenElement) {
+        element.requestFullscreen()
+          .then(() => {
+            setIsFullscreen(true);
+            if (screen.orientation && (screen.orientation as any).lock) {
+              (screen.orientation as any).lock('landscape').catch((err: any) => console.log('Auto lock failed:', err));
+            }
+          })
+          .catch(err => console.log('Auto fullscreen failed:', err));
+      }
+    }
   };
 
   // 儲存排行榜分數到 Firestore
@@ -870,11 +885,27 @@ const ChameleonGame: React.FC = () => {
     if (!document.fullscreenElement) {
       const element = document.documentElement; // 整個頁面進入全螢幕
       if (element.requestFullscreen) {
-        element.requestFullscreen().then(() => setIsFullscreen(true)).catch(err => console.error(err));
+        element.requestFullscreen()
+          .then(() => {
+            setIsFullscreen(true);
+            // 嘗試鎖定橫屏
+            if (screen.orientation && (screen.orientation as any).lock) {
+              (screen.orientation as any).lock('landscape').catch((err: any) => console.log('Orientation lock failed:', err));
+            }
+          })
+          .catch(err => console.error(err));
       }
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen().then(() => setIsFullscreen(false)).catch(err => console.error(err));
+        document.exitFullscreen()
+          .then(() => {
+            setIsFullscreen(false);
+            // 退出時解鎖橫屏
+            if (screen.orientation && (screen.orientation as any).unlock) {
+              (screen.orientation as any).unlock();
+            }
+          })
+          .catch(err => console.error(err));
       }
     }
   };
@@ -1852,6 +1883,18 @@ const ChameleonGame: React.FC = () => {
 
     const handlePointerDown = (e: Event) => {
       if (gameState !== 'playing') return;
+
+      // 避免點擊按鈕或輸入框時觸發跳躍
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'BUTTON' || 
+        target.tagName === 'INPUT' || 
+        target.closest('button') || 
+        target.closest('input')
+      ) {
+        return;
+      }
+
       e.preventDefault();
       isSpaceDown = true;
       checkJumpAchievements();
@@ -1864,10 +1907,10 @@ const ChameleonGame: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    canvas.addEventListener('mousedown', handlePointerDown as EventListener);
-    canvas.addEventListener('mouseup', handlePointerUp as EventListener);
-    canvas.addEventListener('touchstart', handlePointerDown as EventListener, { passive: false });
-    canvas.addEventListener('touchend', handlePointerUp as EventListener);
+    window.addEventListener('mousedown', handlePointerDown as EventListener);
+    window.addEventListener('mouseup', handlePointerUp as EventListener);
+    window.addEventListener('touchstart', handlePointerDown as EventListener, { passive: false });
+    window.addEventListener('touchend', handlePointerUp as EventListener);
 
     // 啟動遊戲
     gameLoop();
@@ -1876,10 +1919,10 @@ const ChameleonGame: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      canvas.removeEventListener('mousedown', handlePointerDown as EventListener);
-      canvas.removeEventListener('mouseup', handlePointerUp as EventListener);
-      canvas.removeEventListener('touchstart', handlePointerDown as EventListener);
-      canvas.removeEventListener('touchend', handlePointerUp as EventListener);
+      window.removeEventListener('mousedown', handlePointerDown as EventListener);
+      window.removeEventListener('mouseup', handlePointerUp as EventListener);
+      window.removeEventListener('touchstart', handlePointerDown as EventListener);
+      window.removeEventListener('touchend', handlePointerUp as EventListener);
       cancelAnimationFrame(animationId);
     };
   }, [gameState]);
